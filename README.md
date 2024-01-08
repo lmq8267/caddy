@@ -11,7 +11,7 @@
 
 /tmp/caddy run --config /tmp/Caddyfile --adapter caddyfile
 
-CaddyFile 配置文件内容如下：
+Caddyfile 配置文件内容如下：
 
 { # 全局配置
 order cgi before respond # 启动 cgi 模块 # 全局配置
