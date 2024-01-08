@@ -22,10 +22,13 @@ jobs:
         run: |
           #git clone https://github.com/caddyserver/caddy /opt/src
           tag=$(curl -s https://api.github.com/repos/caddyserver/xcaddy/releases/latest | grep -o '"tag_name": "v.*"' | cut -d'"' -f4)
+          echo "xcaddy=$tag"
           rel=$(echo $tag | cut -c 2-)
-          wget -q -c https://github.com/caddyserver/xcaddy/releases/download/v$rel/xcaddy_$rel_linux_amd64.tar.gz -O /opt/xcaddy.tar.gz
+          echo "xcaddy_tag=$rel"
+          wget -c "https://github.com/caddyserver/xcaddy/releases/download/v$rel/xcaddy_${rel}_linux_amd64.tar.gz" -O /opt/xcaddy.tar.gz
           tar zxf /opt/xcaddy.tar.gz -C /opt/
-          sudo ln -sf /opt/xcaddy_$rel_linux_amd64/xcaddy /usr/bin/xcaddy
+          sudo ln -sf /opt/xcaddy_${rel}_linux_amd64/xcaddy /usr/bin/xcaddy
+          xcaddy -v
           sudo chmod +x /usr/bin/xcaddy
           git clone https://github.com/lmq8267/cloudflared.git /opt/st
           mkdir -p /opt/caddy
