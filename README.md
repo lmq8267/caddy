@@ -1,18 +1,26 @@
-# 项目地址：https://github.com/caddyserver/caddy
+# 项目地址：[caddyserver/caddy](https://github.com/caddyserver/caddy)
 
-添加了两个插件：
+------------------------------------------------------------------------------
 
-1. https://github.com/mholt/caddy-webdav
+### 添加了两个插件：
+
+1. [mholt/caddy-webdav](https://github.com/mholt/caddy-webdav)
  
-2. https://github.com/aksdb/caddy-cgi
+2. [aksdb/caddy-cgi](https://github.com/aksdb/caddy-cgi)
 
+------------------------------------------------------------------------------
 
-启动方法参照hiboy：https://github.com/hiboyhiboy/opt-script/blob/0dcfdf2911f052218ffb1b7cd220f1457249f538/script/Sh87_cad_dy.sh#L151C28-L151C78
+### 启动方法参照：hiboy的[Sh87_cad_dy.sh](https://github.com/hiboyhiboy/opt-script/blob/0dcfdf2911f052218ffb1b7cd220f1457249f538/script/Sh87_cad_dy.sh#L151C28-L151C78)
 
+```shell
 /tmp/caddy run --config /tmp/Caddyfile --adapter caddyfile
+```
 
-Caddyfile 配置文件内容如下：
+------------------------------------------------------------------------------
 
+### Caddyfile 配置文件内容如下：
+
+```shell
 { # 全局配置
 order cgi before respond # 启动 cgi 模块 # 全局配置
 order webdav before file_server # 启动 webdav 模块 # 全局配置
@@ -44,13 +52,12 @@ header {
    root /mnt/sda1/caddy/www
   }
  }
-
-
-
+```
 
  ------------------------------------------------------------------------------
- #另外的功能 我没用过
  
+ 另外的功能 我没用过
+```shell
  #认证，账号admin 密码123456
   basicauth /dav/* {
    admin $2a$14$RdbOHzJhf5BaapSdlYTCbe.yWY9cEZjyDpfgwStY28K/qsM1tX8tu
@@ -65,7 +72,11 @@ header {
 tls {
   protocols tls1.2 tls1.3
  } 
+```
 
 -----------------------------------------------------------------------------
+
 #basicauth的密码生成是直接用caddy命令：
+```shell
 /tmp/caddy hash-password  --plaintext 123456
+```
