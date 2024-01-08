@@ -27,6 +27,8 @@ jobs:
           echo "xcaddy_tag=$rel"
           wget -c "https://github.com/caddyserver/xcaddy/releases/download/v$rel/xcaddy_${rel}_linux_amd64.tar.gz" -O /opt/xcaddy.tar.gz
           tar zxf /opt/xcaddy.tar.gz -C /opt/
+          ls /opt/xcaddy_${rel}_linux_amd64/
+          export PATH=$PATH:/opt/xcaddy_${rel}_linux_amd64
           sudo ln -sf /opt/xcaddy_${rel}_linux_amd64/xcaddy /usr/bin/xcaddy
           xcaddy -v
           sudo chmod +x /usr/bin/xcaddy
