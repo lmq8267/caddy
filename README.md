@@ -45,3 +45,27 @@ header {
   }
  }
 
+
+
+
+ ------------------------------------------------------------------------------
+ #另外的功能 我没用过
+ 
+ #认证，账号admin 密码123456
+  basicauth /dav/* {
+   admin $2a$14$RdbOHzJhf5BaapSdlYTCbe.yWY9cEZjyDpfgwStY28K/qsM1tX8tu
+  }
+  #webdav
+  webdav /dav/* {
+   prefix /dav
+   root /
+  }
+  
+#ssl证书就是
+tls {
+  protocols tls1.2 tls1.3
+ } 
+
+-----------------------------------------------------------------------------
+#basicauth的密码生成是直接用caddy命令：
+/tmp/caddy hash-password  --plaintext 123456
