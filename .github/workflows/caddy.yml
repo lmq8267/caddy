@@ -41,7 +41,7 @@ jobs:
           chmod 777 /opt/st/strip
           GOOS=linux GOARCH=mipsle GOMIPS=softfloat xcaddy build $tag \
           --with github.com/mholt/caddy-webdav \
-          --with github.com/aksdb/caddy-cgi
+          --with github.com/aksdb/caddy-cgi/v2
           file caddy
           du -k caddy
           cp -rf caddy caddy_upx
