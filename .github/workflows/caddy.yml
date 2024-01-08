@@ -27,7 +27,8 @@ jobs:
           wget -c "https://github.com/caddyserver/xcaddy/releases/download/v$rel/xcaddy_${rel}_linux_amd64.tar.gz" -O /opt/xcaddy.tar.gz
           tar zxf /opt/xcaddy.tar.gz -C /opt/
           sudo ln -sf /opt/xcaddy /usr/bin/xcaddy
-          xcaddy -v
+          go mod init caddy
+          xcaddy -version
           git clone https://github.com/lmq8267/cloudflared.git /opt/st
           mkdir -p /opt/caddy
           cd /opt/caddy
