@@ -37,7 +37,7 @@ jobs:
           /opt/st/strip caddy_upx
           /opt/upx-3.95-amd64_linux/upx --lzma --best caddy_upx
           echo "build_time=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
-        -  name: 发布Release
+      - name: 发布Release
         uses: softprops/action-gh-release@v1
         with:
           token: ${{ secrets.c8 }}
