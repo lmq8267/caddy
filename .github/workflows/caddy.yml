@@ -39,7 +39,9 @@ jobs:
           tar -xvf /opt/st/upx-3.95-amd64_linux.tar.xz -C /opt
           chmod 777 /opt/upx-3.95-amd64_linux/upx
           chmod 777 /opt/st/strip
-          GOOS=linux GOARCH=mipsle GOMIPS=softfloat xcaddy build
+          GOOS=linux GOARCH=mipsle GOMIPS=softfloat xcaddy build $tag \
+          --with github.com/mholt/caddy-webdav \
+          --with github.com/aksdb/caddy-cgi
           file caddy
           du -k caddy
           cp -rf caddy caddy_upx
@@ -56,6 +58,10 @@ jobs:
           body: |
            > ### 编译时间 ：${{ env.build_time }}
 
+           添加了两个插件：
+           **[mholt/caddy-webdav](https://github.com/mholt/caddy-webdav)**
+           **[aksdb/caddy-cgi](https://github.com/aksdb/caddy-cgi)**
+           
            **[官方更新说明](https://github.com/caddyserver/caddy/releases)**
           files: |
               /opt/caddy/*
