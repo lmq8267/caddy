@@ -20,28 +20,32 @@ jobs:
       - 
         name: 编译
         run: |
-          git clone https://github.com/caddyserver/caddy /opt/src
+          #git clone https://github.com/caddyserver/caddy /opt/src
+          tag=$(curl -s https://api.github.com/repos/caddyserver/xcaddy/releases/latest | grep -o '"tag_name": "v.*"' | cut -d'"' -f4)
+          rel=${tag#v}
+          wget -q -c https://github.com/caddyserver/xcaddy/releases/download/v$rel/xcaddy_$rel_linux_amd64.tar.gz -O /opt/xcaddy.tar.gz
+          tar zxf /opt/xcaddy.tar.gz -C /opt/
+          sudo ln -sf /opt/xcaddy_$rel_linux_amd64/xcaddy /usr/bin/xcaddy
           git clone https://github.com/lmq8267/cloudflared.git /opt/st
-          cd /opt/src/cmd/caddy/
+          mkdir -p /opt/caddy
+          cd /opt/caddy
           sudo timedatectl set-timezone "Asia/Shanghai"
           tar -xvf /opt/st/upx-3.95-amd64_linux.tar.xz -C /opt
           chmod 777 /opt/upx-3.95-amd64_linux/upx
           chmod 777 /opt/st/strip
-          GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build
+          GOOS=linux GOARCH=mipsle GOMIPS=softfloat xcaddy build
           file caddy
           du -k caddy
-          mkdir -p /opt/caddy
-          cp -rf caddy /opt/caddy/caddy
-          cp -rf caddy /opt/caddy/caddy_upx
-          cd /opt/caddy
+          cp -rf caddy caddy_upx
           /opt/st/strip caddy_upx
           /opt/upx-3.95-amd64_linux/upx --lzma --best caddy_upx
           echo "build_time=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+          echo "build_tag=$tag" >> $GITHUB_ENV
       - name: 发布Release
         uses: softprops/action-gh-release@v1
         with:
           token: ${{ secrets.c8 }}
-          tag_name: caddy
+          tag_name: ${{ env.build_tag }}
           body: |
            > ### 编译时间 ：${{ env.build_time }}
 
