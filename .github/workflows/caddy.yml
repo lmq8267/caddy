@@ -25,9 +25,11 @@ jobs:
           rel=$(echo $tag | cut -c 2-)
           echo "xcaddy_tag=$rel"
           wget -c "https://github.com/caddyserver/xcaddy/releases/download/v$rel/xcaddy_${rel}_linux_amd64.tar.gz" -O /opt/xcaddy.tar.gz
+          tag=$(curl -s https://api.github.com/repos/caddyserver/caddy/releases/latest | grep -o '"tag_name": "v.*"' | cut -d'"' -f4)
           tar zxf /opt/xcaddy.tar.gz -C /opt/
           sudo ln -sf /opt/xcaddy /usr/bin/xcaddy
           go mod init caddy
+          go get github.com/caddyserver/caddy/v2@$tag
           echo "开始构建"
           git clone https://github.com/lmq8267/cloudflared.git /opt/st
           mkdir -p /opt/caddy
