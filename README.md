@@ -3,8 +3,8 @@
 添加了两个插件：
 
 1. https://github.com/mholt/caddy-webdav
-2. 
-3. https://github.com/aksdb/caddy-cgi
+ 
+2. https://github.com/aksdb/caddy-cgi
 
 
 启动方法参照hiboy：https://github.com/hiboyhiboy/opt-script/blob/0dcfdf2911f052218ffb1b7cd220f1457249f538/script/Sh87_cad_dy.sh#L151C28-L151C78
