@@ -20,7 +20,7 @@ jobs:
       - 
         name: 编译
         run: |
-          #git clone https://github.com/caddyserver/caddy /opt/src
+          git clone https://github.com/caddyserver/caddy /opt/src
           tag=$(curl -s https://api.github.com/repos/caddyserver/xcaddy/releases/latest | grep -o '"tag_name": "v.*"' | cut -d'"' -f4)
           rel=$(echo $tag | cut -c 2-)
           echo "xcaddy_tag=$rel"
@@ -28,9 +28,10 @@ jobs:
           tar zxf /opt/xcaddy.tar.gz -C /opt/
           sudo ln -sf /opt/xcaddy /usr/bin/xcaddy
           go mod init caddy
-          xcaddy -version
+          echo "开始构建"
           git clone https://github.com/lmq8267/cloudflared.git /opt/st
           mkdir -p /opt/caddy
+          cp -rf /opt/src/cmd/caddy/main.go /opt/caddy/main.go
           cd /opt/caddy
           sudo timedatectl set-timezone "Asia/Shanghai"
           tar -xvf /opt/st/upx-3.95-amd64_linux.tar.xz -C /opt
@@ -44,6 +45,7 @@ jobs:
           /opt/upx-3.95-amd64_linux/upx --lzma --best caddy_upx
           echo "build_time=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
           echo "build_tag=$tag" >> $GITHUB_ENV
+          rm -rf main.go
       - name: 发布Release
         uses: softprops/action-gh-release@v1
         with:
