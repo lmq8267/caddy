@@ -10,6 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: 安装go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.21.5
       - 
         name: 下载工具链
         shell: bash
@@ -56,6 +60,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           token: ${{ secrets.c8 }}
+          prerelease: true
           tag_name: alist-openwrt_mipsel
           body: |
            > ### 编译时间 ：${{ env.build_time }}
