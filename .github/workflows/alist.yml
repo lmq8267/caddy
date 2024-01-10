@@ -38,6 +38,8 @@ jobs:
           sed -i '/local jwt_secret/i\\PROG="$binpath"' /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/package/alist/files/alist.init
           
           sed -i 's|(1)/usr/bin|(1)/tmp/tmp|g' /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/package/alist/Makefile
+          sed -i 's|include ../../lang/golang/golang-package.mk|include $(TOPDIR)/feeds/packages/lang/golang/golang-package.mk|g' /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/package/alist/Makefile
+          sed -i 's|include ../../luci.mk|include $(TOPDIR)/feeds/luci/luci.mk|g' /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/package/luci-app-alist/Makefile
           
       - 
         name: 编译
