@@ -41,7 +41,10 @@ jobs:
           sed -i 's|(1)/usr/bin|(1)/tmp/tmp|g' /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/package/alist/Makefile
           sed -i 's|include ../../lang/golang/golang-package.mk|include $(TOPDIR)/feeds/packages/lang/golang/golang-package.mk|g' /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/package/alist/Makefile
           sed -i 's|include ../../luci.mk|include $(TOPDIR)/feeds/luci/luci.mk|g' /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/package/luci-app-alist/Makefile
-          
+          cd /opt/luci/modules/luci-base/src
+          make po2lmo
+          sudo rm -rf "/usr/bin/po2lmo"
+          sudo cp -fp "po2lmo" "/usr/bin/po2lmo"
       - 
         name: 编译
         shell: bash
