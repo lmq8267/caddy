@@ -1,0 +1,76 @@
+name: 编译-openwrt-alist
+
+on:
+  workflow_dispatch:
+env:
+  TZ: Asia/Shanghai
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: 安装go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.21.5
+      - 
+        name: 下载工具链
+        shell: bash
+        run: |
+          sudo timedatectl set-timezone "$TZ"
+          #下载编译工具链
+          wget -qO /opt/sdk.tar.xz https://archive.openwrt.org/releases/23.05.0/targets/ramips/mt7621/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64.tar.xz
+          tar -xJf /opt/sdk.tar.xz -C /opt
+          git clone https://github.com/immortalwrt/luci /opt/luci
+          git clone https://github.com/immortalwrt/packages /opt/ali
+          cp -R /opt/luci/applications/luci-app-alist /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/package/luci-app-alist
+          cp -R /opt/ali/net/alist /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/package/alist
+          sed -i 's|LUCI_DEPENDS:=+alist|LUCI_DEPENDS:=|g' /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/package/luci-app-alist/Makefile
+          
+          sed -i "/o = s.option(form.Value, 'listen_addr', _('Listen address'));/i\\o = s.option(form.Value, 'binpath', _('主程序程序路径'));" /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/package/luci-app-alist/htdocs/luci-static/resources/view/alist/config.js
+          sed -i "/o = s.option(form.Value, 'listen_addr', _('Listen address'));/i\\o.default = '/tmp/tmp/alist';" /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/package/luci-app-alist/htdocs/luci-static/resources/view/alist/config.js
+          sed -i "/o = s.option(form.Value, 'listen_addr', _('Listen address'));/i\\o.rmempty = false;" /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/package/luci-app-alist/htdocs/luci-static/resources/view/alist/config.js
+          
+          sed -i "/option debug '0'/i\\option binpath '/tmp/tmp/alist'" /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/package/alist/files/alist.config
+          sed -i 's|PROG="/usr/bin/alist"||g' /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/package/alist/files/alist.init
+          sed -i '/local jwt_secret/i\\config_get binpath "alist" "binpath"' /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/package/alist/files/alist.init
+          sed -i '/local jwt_secret/i\\PROG="$binpath"' /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/package/alist/files/alist.init
+          
+          sed -i 's|(1)/usr/bin|(1)/tmp/tmp|g' /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/package/alist/Makefile
+          
+      - 
+        name: 编译
+        shell: bash
+        run: |
+          sudo -E apt-get -qq update
+          ( sudo -E apt-get -qq install build-essential clang flex g++ gawk gcc-multilib gettext \
+          git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev swig libpython3-dev aria2 jq rename bc libfuse-dev libelf-dev
+          sudo -E apt-get -qq purge azure-cli ghc* zulu* llvm* firefox powershell openjdk* dotnet* google* mysql* php* android*
+          sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          sudo -E apt-get -qq autoremove --purge
+          sudo -E apt-get -qq clean ) &
+          cd /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64
+          ./scripts/feeds update -a
+          make defconfig
+          make package/alist/compile V=s -j1
+          make package/luci-app-alist/compile V=s -j1
+          ls /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/bin/packages/mipsel_24kc/base
+          echo "build_time=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+      - name: 发布Release
+        uses: softprops/action-gh-release@v1
+        with:
+          token: ${{ secrets.c8 }}
+          prerelease: true
+          tag_name: alist-openwrt_mipsel
+          body: |
+           > ### 编译时间 ：${{ env.build_time }}
+
+          files: /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/bin/packages/mipsel_24kc/base/*
+      - 
+       name: 删除工作流
+       uses: GitRML/delete-workflow-runs@main
+       with:
+        token: ${{ secrets.c8 }}
+        retain_days: 2
+        keep_minimum_runs: 0
