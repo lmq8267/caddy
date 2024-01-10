@@ -25,6 +25,7 @@ jobs:
           git clone https://github.com/immortalwrt/luci /opt/luci
           git clone https://github.com/immortalwrt/packages /opt/ali
           cp -R /opt/luci/applications/luci-app-alist /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/package/luci-app-alist
+          cp -R /opt/luci/modules/luci-base /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/package/luci-base
           cp -R /opt/ali/net/alist /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/package/alist
           sed -i 's|LUCI_DEPENDS:=+alist|LUCI_DEPENDS:=|g' /opt/openwrt-sdk-23.05.0-ramips-mt7621_gcc-12.3.0_musl.Linux-x86_64/package/luci-app-alist/Makefile
           
