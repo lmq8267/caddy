@@ -17,6 +17,7 @@ jobs:
           echo -e "\n\033[42;31;5;1m 开始解压musl工具链.. \n\033[0m"
           unzip -q  /opt/musl_gcc/buildroot-2023.02.5-mipsel-uclibc.zip -d /opt/musl_gcc/
           echo -e "\n\033[42;31;5;1m 查看musl-gcc信息 \n\033[0m"
+          sudo chmod -R +x /opt/musl_gcc 
           /opt/musl_gcc/host/bin/mipsel-buildroot-linux-uclibc-gcc -v
       - 
         name: 编译zerotier
