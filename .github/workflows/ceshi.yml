@@ -13,11 +13,11 @@ jobs:
           git clone https://github.com/zerotier/ZeroTierOne -b 1.12.2 /opt/zt
           mkdir -p /opt/musl_gcc 
           echo -e "\n\033[42;31;5;1m 开始下载musl工具链.. \n\033[0m"
-          wget -q -c https://musl.cc/arm-linux-musleabi-cross.tgz -P /opt/musl_gcc/
+          wget -q -c https://musl.cc/mipsel-linux-musl-cross.tgz -P /opt/musl_gcc/
           echo -e "\n\033[42;31;5;1m 开始解压musl工具链.. \n\033[0m"
-          tar -xf /opt/musl_gcc/arm-linux-musleabi-cross.tgz -C /opt/musl_gcc/
+          tar -xf /opt/musl_gcc/mipsel-linux-musl-cross.tgz -C /opt/musl_gcc/
           echo -e "\n\033[42;31;5;1m 查看musl-gcc信息 \n\033[0m"
-          /opt/musl_gcc/arm-linux-musleabi-cross/bin/arm-linux-musleabi-gcc -v
+          /opt/musl_gcc/mipsel-linux-musl-cross/bin/mipsel-linux-musl-gcc -v
       - 
         name: 编译zerotier
         shell: bash
@@ -37,20 +37,20 @@ jobs:
  
           echo -e "\n\033[42;31;5;1m 设置编译环境变量 \n\033[0m"
           sudo timedatectl set-timezone "Asia/Shanghai"
-          export PATH=$PATH:/opt/musl_gcc/arm-linux-musleabi-cross/bin
-          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/musl_gcc/arm-linux-musleabi-cross/${{ matrix.GCC }}/lib
-          export CC=arm-linux-musleabi-gcc
-          export CXX=arm-linux-musleabi-g++
-          export AR=arm-linux-musleabi-ar
-          export LD=arm-linux-musleabi-ld
-          export RANLIB=arm-linux-musleabi-ranlib
-          export STRIP=arm-linux-musleabi-strip
-          export CFLAGS="-I /opt/musl_gcc/arm-linux-musleabi-cross/arm-linux-musleabi/include -L /opt/musl_gcc/arm-linux-musleabi-cross/arm-linux-musleabi/lib -Wl,--gc-sections -Os -ffunction-sections -fdata-sections -D_GNU_SOURCE -D_BSD_SOURCE -fPIE"
+          export PATH=$PATH:/opt/musl_gcc/mipsel-linux-musl-cross/bin
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/musl_gcc/mipsel-linux-musl-cross/mipsel-linux-musl/lib
+          export CC=mipsel-linux-musl-gcc
+          export CXX=mipsel-linux-musl-g++
+          export AR=mipsel-linux-musl-ar
+          export LD=mipsel-linux-musl-ld
+          export RANLIB=mipsel-linux-musl-ranlib
+          export STRIP=mipsel-linux-musl-strip
+          export CFLAGS="-I /opt/musl_gcc/mipsel-linux-musl-cross/mipsel-linux-musl/include -L /opt/musl_gcc/mipsel-linux-musl-cross/mipsel-linux-musl/lib -Wl,--gc-sections -Os -ffunction-sections -fdata-sections -D_GNU_SOURCE -D_BSD_SOURCE -fPIE"
           export CXXFLAGS="$CFLAGS"
           export TARGET_CFLAGS=" -DNDEBUG -DBOOST_NO_FENV_H -DBOOST_DISABLE_ASSERTS"
           echo -e "\n\033[42;31;5;1m 开始编译... \n\033[0m"
-          CC=arm-linux-musleabi-gcc \
-          STRIP=arm-linux-musleabi-strip \
+          CC=mipsel-linux-musl-gcc \
+          STRIP=mipsel-linux-musl-strip \
           ZT_STATIC=1 \
           OSTYPE="Linux" \
           make
@@ -59,8 +59,8 @@ jobs:
         run: |
           echo -e "\n\033[42;31;5;1m 开始下载指定版本upx \n\033[0m"
           git clone https://github.com/lmq8267/cloudflared.git /opt/st
-          tar -xf /opt/st/upx-4.1.0-amd64_linux.tar.xz -C /opt
-          chmod 777 /opt/upx-4.1.0-amd64_linux/upx
+          tar -xf /opt/st/upx-3.95-amd64_linux.tar.xz -C /opt
+          chmod 777 /opt/upx-3.95-amd64_linux/upx
           cd /opt/zt
           echo -e "\n\033[42;31;5;1m 查看二进制程序信息 \n\033[0m"
           file zerotier-one
@@ -68,16 +68,16 @@ jobs:
           echo -e "\n\033[42;31;5;1m 查看原始体积 \n\033[0m"
           du -k zerotier-one
           echo -e "\n\033[42;31;5;1m 开始剥离... \n\033[0m"
-          /opt/musl_gcc/arm-linux-musleabi-cross/bin/arm-linux-musleabi-strip zerotier-one
+          /opt/musl_gcc/mipsel-linux-musl-cross/bin/mipsel-linux-musli-strip zerotier-one
           echo -e "\n\033[42;31;5;1m 查看剥离后的体积 \n\033[0m"
           du -k zerotier-one
           echo -e "\n\033[42;31;5;1m 开始upx压缩... \n\033[0m"
-          /opt/upx-4.1.0-amd64_linux/upx --lzma --best zerotier-one
+          /opt/upx-3.95-amd64_linux/upx --lzma --best zerotier-one
           echo -e "\n\033[42;31;5;1m 查看压缩后的体积 \n\033[0m"
           du -k zerotier-one
           ln -sf zerotier-one zerotier-cli
           ln -sf zerotier-one zerotier-idtool
-          tar czvf zerotier-one_armv7.tar.gz zerotier-one zerotier-cli zerotier-idtool
+          tar czvf zerotier-one_mipsel.tar.gz zerotier-one zerotier-cli zerotier-idtool
           echo -e "\n\033[42;31;5;1m 编译时间：$(date '+%Y-%m-%d %H:%M:%S') \n\033[0m"
           echo "build_time=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
       -  name: 发布release
@@ -88,4 +88,4 @@ jobs:
            > ### 编译时间：${{ env.build_time }}
            
           tag_name: zerotier
-          files: /opt/zt/zerotier-one_armv7.tar.gz
+          files: /opt/zt/zerotier-one_mipsel.tar.gz
