@@ -17,8 +17,8 @@ jobs:
           echo -e "\n\033[42;31;5;1m 开始解压musl工具链.. \n\033[0m"
           tar -xJf /opt/musl_gcc/openwrt-toolchain-22.03.5-ramips-mt7621_gcc-11.2.0_musl.Linux-x86_64.tar.xz -C /opt/musl_gcc/
           echo -e "\n\033[42;31;5;1m 查看musl-gcc信息 \n\033[0m"
-          export STAGING_DIR=/opt/musl_gcc/openwrt-toolchain-22.03.5-ramips-mt7621_gcc-11.2.0_musl.Linux-x86_64/toolchain-mipsel_24kc_gcc-11.2.0_musl
-          /opt/musl_gcc/openwrt-toolchain-22.03.5-ramips-mt7621_gcc-11.2.0_musl.Linux-x86_64/toolchain-mipsel_24kc_gcc-11.2.0_musl/bin/mipsel-openwrt-linux-musl-gcc -v
+          #export STAGING_DIR=/opt/musl_gcc/openwrt-toolchain-22.03.5-ramips-mt7621_gcc-11.2.0_musl.Linux-x86_64/toolchain-mipsel_24kc_gcc-11.2.0_musl
+          #/opt/musl_gcc/openwrt-toolchain-22.03.5-ramips-mt7621_gcc-11.2.0_musl.Linux-x86_64/toolchain-mipsel_24kc_gcc-11.2.0_musl/bin/mipsel-openwrt-linux-musl-gcc -v
       - 
         name: 编译zerotier
         shell: bash
