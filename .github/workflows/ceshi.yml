@@ -87,5 +87,5 @@ jobs:
           body: |
            > ### 编译时间：${{ env.build_time }}
            
-           tag_name: zerotier
-           files: /opt/zt/zerotier-one_armv7.tar.gz
+          tag_name: zerotier
+          files: /opt/zt/zerotier-one_armv7.tar.gz
