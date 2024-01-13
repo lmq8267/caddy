@@ -68,7 +68,7 @@ jobs:
           echo -e "\n\033[42;31;5;1m 查看原始体积 \n\033[0m"
           du -k zerotier-one
           echo -e "\n\033[42;31;5;1m 开始剥离... \n\033[0m"
-          /opt/musl_gcc/mipsel-linux-musl-cross/bin/mipsel-linux-musli-strip zerotier-one
+          /opt/musl_gcc/mipsel-linux-musl-cross/bin/mipsel-linux-musl-strip zerotier-one
           echo -e "\n\033[42;31;5;1m 查看剥离后的体积 \n\033[0m"
           du -k zerotier-one
           echo -e "\n\033[42;31;5;1m 开始upx压缩... \n\033[0m"
