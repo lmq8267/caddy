@@ -31,7 +31,7 @@ jobs:
           sed -i 's|override CFLAGS+=-mfloat-abi=hard -march=armv6zk -marm -mfpu=vfp -mno-unaligned-access -mtp=cp15 -mcpu=arm1176jzf-s|override CFLAGS+=-mfloat-abi=soft -msoft-float -mno-unaligned-access -marm|g' ./make-linux.mk
           sed -i 's|override CXXFLAGS+=-mfloat-abi=hard -march=armv6zk -marm -mfpu=vfp -fexceptions -mno-unaligned-access -mtp=cp15 -mcpu=arm1176jzf-s|override CXXFLAGS+=-mfloat-abi=soft -msoft-float -mno-unaligned-access -marm|g' ./make-linux.mk
           echo -e "\n\033[42;31;5;1m 修改arm7l架构密钥存储路径 \n\033[0m"
-          sed -i 's|/var/lib/zerotier-one|/etc/zerotier-one|g' ./osdep/OSUtils.cpp
+          sed -i 's|/var/lib/zerotier-one|/opt/var/lib/zerotier-one|g' ./osdep/OSUtils.cpp
           cat ./osdep/OSUtils.cpp | grep /zerotier-one
           MAC="$(grep -n "ioctl(sock,SIOCSIFHWADDR,(void" ./osdep/LinuxEthernetTap.cpp | head -2 | tail -1 | awk '{print $1}' | tr -d ": ")" && echo -e "\n\033[42;31;5;1m 删除第 ${t} 行 \n\033[0m" &&  sed -i "$((MAC)),+5d" ./osdep/LinuxEthernetTap.cpp && cat ./osdep/LinuxEthernetTap.cpp | grep MAC
  
