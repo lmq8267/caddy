@@ -13,11 +13,11 @@ jobs:
           git clone https://github.com/zerotier/ZeroTierOne -b 1.12.2 /opt/zt
           mkdir -p /opt/musl_gcc 
           echo -e "\n\033[42;31;5;1m 开始下载musl工具链.. \n\033[0m"
-          wget -q -c https://archive.openwrt.org/releases/21.02.5/targets/ramips/mt7621/openwrt-sdk-21.02.5-ramips-mt7621_gcc-8.4.0_musl.Linux-x86_64.tar.xz -P /opt/musl_gcc/
+          wget -q -c https://archive.openwrt.org/releases/22.03.5/targets/ramips/mt7621/openwrt-toolchain-22.03.5-ramips-mt7621_gcc-11.2.0_musl.Linux-x86_64.tar.xz -P /opt/musl_gcc/
           echo -e "\n\033[42;31;5;1m 开始解压musl工具链.. \n\033[0m"
-          tar -xJf /opt/musl_gcc/openwrt-sdk-21.02.5-ramips-mt7621_gcc-8.4.0_musl.Linux-x86_64.tar.xz -C /opt/musl_gcc/
+          tar -xJf /opt/musl_gcc/openwrt-toolchain-22.03.5-ramips-mt7621_gcc-11.2.0_musl.Linux-x86_64.tar.xz -C /opt/musl_gcc/
           echo -e "\n\033[42;31;5;1m 查看musl-gcc信息 \n\033[0m"
-          /opt/musl_gcc/openwrt-sdk-21.02.5-ramips-mt7621_gcc-8.4.0_musl.Linux-x86_64/staging_dir/toolchain-mipsel_24kc_gcc-8.4.0_musl/bin/mipsel-openwrt-linux-musl-gcc -v
+          /opt/musl_gcc/openwrt-toolchain-22.03.5-ramips-mt7621_gcc-11.2.0_musl.Linux-x86_64/toolchain-mipsel_24kc_gcc-11.2.0_musl/bin/mipsel-openwrt-linux-musl-gcc -v
       - 
         name: 编译zerotier
         shell: bash
@@ -37,16 +37,16 @@ jobs:
  
           echo -e "\n\033[42;31;5;1m 设置编译环境变量 \n\033[0m"
           sudo timedatectl set-timezone "Asia/Shanghai"
-          export STAGING_DIR=/opt/musl_gcc/openwrt-sdk-21.02.5-ramips-mt7621_gcc-8.4.0_musl.Linux-x86_64/staging_dir
-          export PATH=$PATH:/opt/musl_gcc/openwrt-sdk-21.02.5-ramips-mt7621_gcc-8.4.0_musl.Linux-x86_64/staging_dir/toolchain-mipsel_24kc_gcc-8.4.0_musl/bin
-          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/musl_gcc/openwrt-sdk-21.02.5-ramips-mt7621_gcc-8.4.0_musl.Linux-x86_64/staging_dir/toolchain-mipsel_24kc_gcc-8.4.0_musl/lib
+          export STAGING_DIR=/opt/musl_gcc/openwrt-toolchain-22.03.5-ramips-mt7621_gcc-11.2.0_musl.Linux-x86_64/toolchain-mipsel_24kc_gcc-11.2.0_musl
+          export PATH=$PATH:/opt/musl_gcc/openwrt-toolchain-22.03.5-ramips-mt7621_gcc-11.2.0_musl.Linux-x86_64/toolchain-mipsel_24kc_gcc-11.2.0_musl/bin
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/musl_gcc/openwrt-toolchain-22.03.5-ramips-mt7621_gcc-11.2.0_musl.Linux-x86_64/toolchain-mipsel_24kc_gcc-11.2.0_musl/lib
           export CC=mipsel-openwrt-linux-musl-gcc
           export CXX=mipsel-openwrt-linux-musl-g++
           export AR=mipsel-openwrt-linux-musl-ar
           export LD=mipsel-openwrt-linux-musl-ld
           export RANLIB=mipsel-openwrt-linux-musl-ranlib
           export STRIP=mipsel-openwrt-linux-musl-strip
-          export CFLAGS="-I /opt/musl_gcc/openwrt-sdk-21.02.5-ramips-mt7621_gcc-8.4.0_musl.Linux-x86_64/staging_dir/toolchain-mipsel_24kc_gcc-8.4.0_musl/include -L /opt/musl_gcc/openwrt-sdk-21.02.5-ramips-mt7621_gcc-8.4.0_musl.Linux-x86_64/staging_dir/toolchain-mipsel_24kc_gcc-8.4.0_musl/lib -Wl,--gc-sections -Os -ffunction-sections -fdata-sections -D_GNU_SOURCE -D_BSD_SOURCE -fPIE"
+          export CFLAGS="-I /opt/musl_gcc/openwrt-toolchain-22.03.5-ramips-mt7621_gcc-11.2.0_musl.Linux-x86_64/toolchain-mipsel_24kc_gcc-11.2.0_musl/include -L /opt/musl_gcc/openwrt-toolchain-22.03.5-ramips-mt7621_gcc-11.2.0_musl.Linux-x86_64/toolchain-mipsel_24kc_gcc-11.2.0_musl/lib -Wl,--gc-sections -Os -ffunction-sections -fdata-sections -D_GNU_SOURCE -D_BSD_SOURCE -fPIE"
           export CXXFLAGS="$CFLAGS"
           export TARGET_CFLAGS=" -DNDEBUG -DBOOST_NO_FENV_H -DBOOST_DISABLE_ASSERTS"
           echo -e "\n\033[42;31;5;1m 开始编译... \n\033[0m"
@@ -69,7 +69,7 @@ jobs:
           echo -e "\n\033[42;31;5;1m 查看原始体积 \n\033[0m"
           du -k zerotier-one
           echo -e "\n\033[42;31;5;1m 开始剥离... \n\033[0m"
-          /opt/musl_gcc/openwrt-sdk-21.02.5-ramips-mt7621_gcc-8.4.0_musl.Linux-x86_64/staging_dir/toolchain-mipsel_24kc_gcc-8.4.0_musl/bin/mipsel-openwrt-linux-musl-strip zerotier-one
+          /opt/musl_gcc/openwrt-toolchain-22.03.5-ramips-mt7621_gcc-11.2.0_musl.Linux-x86_64/toolchain-mipsel_24kc_gcc-11.2.0_musl/bin/mipsel-openwrt-linux-musl-strip zerotier-one
           echo -e "\n\033[42;31;5;1m 查看剥离后的体积 \n\033[0m"
           du -k zerotier-one
           echo -e "\n\033[42;31;5;1m 开始upx压缩... \n\033[0m"
