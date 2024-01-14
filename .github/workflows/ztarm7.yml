@@ -1,0 +1,91 @@
+name: A测试编译arm-zerotier
+
+on:
+  workflow_dispatch:
+jobs:
+ build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: 下载编译工具链
+        run: |
+          echo -e "\n\033[42;31;5;1m 开始克隆源码... \n\033[0m"
+          git clone https://github.com/zerotier/ZeroTierOne -b 1.10.6 /opt/zt
+          mkdir -p /opt/musl_gcc 
+          echo -e "\n\033[42;31;5;1m 开始下载musl工具链.. \n\033[0m"
+          wget -q -c https://musl.cc/arm-linux-musleabi-cross.tgz -P /opt/musl_gcc/
+          echo -e "\n\033[42;31;5;1m 开始解压musl工具链.. \n\033[0m"
+          tar -xf /opt/musl_gcc/arm-linux-musleabi-cross.tgz -C /opt/musl_gcc/
+          echo -e "\n\033[42;31;5;1m 查看musl-gcc信息 \n\033[0m"
+          /opt/musl_gcc/arm-linux-musleabi-cross/bin/arm-linux-musleabi-gcc -v
+      - 
+        name: 编译zerotier
+        shell: bash
+        run: |
+          cd /opt/zt
+          echo -e "\n\033[42;31;5;1m 修改zerotier源码 \n\033[0m"
+          sed -i 's|-fPIC -fPIE|-fPIC -fPIE -static|g' ./make-linux.mk
+          sed -i '/include objects.mk/i    LDLIBS+=-latomic' ./make-linux.mk
+          sed -i 's|override CFLAGS+=-march=armv5t -mfloat-abi=soft -msoft-float -mno-unaligned-access -marm|override CFLAGS+=-mfloat-abi=soft -msoft-float -mno-unaligned-access -marm|g' ./make-linux.mk
+          sed -i 's|override CXXFLAGS+=-march=armv5t -mfloat-abi=soft -msoft-float -mno-unaligned-access -marm|override CXXFLAGS+=-mfloat-abi=soft -msoft-float -mno-unaligned-access -marm|g' ./make-linux.mk
+          sed -i 's|override CFLAGS+=-mfloat-abi=hard -march=armv6zk -marm -mfpu=vfp -mno-unaligned-access -mtp=cp15 -mcpu=arm1176jzf-s|override CFLAGS+=-mfloat-abi=soft -msoft-float -mno-unaligned-access -marm|g' ./make-linux.mk
+          sed -i 's|override CXXFLAGS+=-mfloat-abi=hard -march=armv6zk -marm -mfpu=vfp -fexceptions -mno-unaligned-access -mtp=cp15 -mcpu=arm1176jzf-s|override CXXFLAGS+=-mfloat-abi=soft -msoft-float -mno-unaligned-access -marm|g' ./make-linux.mk
+          echo -e "\n\033[42;31;5;1m 修改arm7l架构密钥存储路径 \n\033[0m"
+          sed -i 's|/var/lib/zerotier-one|/opt/var/lib/zerotier-one|g' ./osdep/OSUtils.cpp
+          cat ./osdep/OSUtils.cpp | grep /zerotier-one
+          MAC="$(grep -n "ioctl(sock,SIOCSIFHWADDR,(void" ./osdep/LinuxEthernetTap.cpp | head -2 | tail -1 | awk '{print $1}' | tr -d ": ")" && echo -e "\n\033[42;31;5;1m 删除第 ${t} 行 \n\033[0m" &&  sed -i "$((MAC)),+5d" ./osdep/LinuxEthernetTap.cpp && cat ./osdep/LinuxEthernetTap.cpp | grep MAC
+ 
+          echo -e "\n\033[42;31;5;1m 设置编译环境变量 \n\033[0m"
+          sudo timedatectl set-timezone "Asia/Shanghai"
+          export PATH=$PATH:/opt/musl_gcc/arm-linux-musleabi-cross/bin
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/musl_gcc/arm-linux-musleabi-cross/arm-linux-musleabi/lib
+          export CC=arm-linux-musleabi-gcc
+          export CXX=arm-linux-musleabi-g++
+          export AR=arm-linux-musleabi-ar
+          export LD=arm-linux-musleabi-ld
+          export RANLIB=arm-linux-musleabi-ranlib
+          export STRIP=arm-linux-musleabi-strip
+          export CFLAGS="-I /opt/musl_gcc/arm-linux-musleabi-cross/arm-linux-musleabi/include -L /opt/musl_gcc/arm-linux-musleabi-cross/arm-linux-musleabi/lib -Wl,--gc-sections -Os -ffunction-sections -fdata-sections -D_GNU_SOURCE -D_BSD_SOURCE -fPIE"
+          export CXXFLAGS="$CFLAGS"
+          export TARGET_CFLAGS=" -DNDEBUG -DBOOST_NO_FENV_H -DBOOST_DISABLE_ASSERTS"
+          echo -e "\n\033[42;31;5;1m 开始编译... \n\033[0m"
+          CC=arm-linux-musleabi-gcc \
+          STRIP=arm-linux-musleabi-strip \
+          ZT_STATIC=1 \
+          OSTYPE="Linux" \
+          make
+      - 
+        name: 剥离压缩
+        run: |
+          echo -e "\n\033[42;31;5;1m 开始下载指定版本upx \n\033[0m"
+          git clone https://github.com/lmq8267/cloudflared.git /opt/st
+          tar -xf /opt/st/upx-4.1.0-amd64_linux.tar.xz -C /opt
+          chmod 777 /opt/upx-4.1.0-amd64_linux/upx
+          cd /opt/zt
+          echo -e "\n\033[42;31;5;1m 查看二进制程序信息 \n\033[0m"
+          file zerotier-one
+          strings zerotier-one | grep /zerotier-one
+          echo -e "\n\033[42;31;5;1m 查看原始体积 \n\033[0m"
+          du -k zerotier-one
+          echo -e "\n\033[42;31;5;1m 开始剥离... \n\033[0m"
+          /opt/musl_gcc/arm-linux-musleabi-cross/bin/arm-linux-musleabi-strip zerotier-one
+          echo -e "\n\033[42;31;5;1m 查看剥离后的体积 \n\033[0m"
+          du -k zerotier-one
+          echo -e "\n\033[42;31;5;1m 开始upx压缩... \n\033[0m"
+          /opt/upx-4.1.0-amd64_linux/upx --lzma --best zerotier-one
+          echo -e "\n\033[42;31;5;1m 查看压缩后的体积 \n\033[0m"
+          du -k zerotier-one
+          ln -sf zerotier-one zerotier-cli
+          ln -sf zerotier-one zerotier-idtool
+          tar czvf zerotier-one_armv7.tar.gz zerotier-one zerotier-cli zerotier-idtool
+          echo -e "\n\033[42;31;5;1m 编译时间：$(date '+%Y-%m-%d %H:%M:%S') \n\033[0m"
+          echo "build_time=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+      -  name: 发布release
+         uses: softprops/action-gh-release@v1
+         with:
+          token: ${{ secrets.c8 }}
+          body: |
+           > ### 编译时间：${{ env.build_time }}
+           
+          tag_name: zerotier-arm
+          files: /opt/zt/zerotier-one_armv7.tar.gz
