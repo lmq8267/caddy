@@ -151,6 +151,13 @@ jobs:
             body: |
              > ### 编译时间 ：${{ env.build_time }}
 
+              caddy-CPU架构-upx 为upx压缩文件
+              
+              添加了两个插件：
+              **[mholt/caddy-webdav](https://github.com/mholt/caddy-webdav)**
+              **[aksdb/caddy-cgi](https://github.com/aksdb/caddy-cgi)**
+
+              **[官方更新说明](https://github.com/caddyserver/caddy/releases)**
               
             tag_name: ${{ needs.check.outputs.ver }}
             files: /opt/caddy/*
