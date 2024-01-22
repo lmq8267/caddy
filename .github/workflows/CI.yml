@@ -1,0 +1,159 @@
+name: 编译caddy二进制文件
+
+on:
+  schedule:
+    - cron: '0 20 * * *'
+  workflow_dispatch:
+
+env:
+  TZ: Asia/Shanghai
+jobs:
+ check:
+  runs-on: ubuntu-latest
+  outputs:
+    ver: ${{ steps.getversion.outputs.ver }}
+    cver: ${{ steps.getversion.outputs.cver }}
+  steps:
+  - name: 检查更新
+    id: getversion
+    run: |
+      ver=`curl https://api.github.com/repos/caddyserver/caddy/releases/latest | jq -r '.tag_name'`
+      cver=`curl https://api.github.com/repos/lmq8267/caddy/releases/latest | jq -r '.tag_name'`
+      echo "ver=${ver}" >> $GITHUB_OUTPUT
+      echo "cver=${cver}" >> $GITHUB_OUTPUT
+  -     name: 删除工作流
+        uses: GitRML/delete-workflow-runs@main
+        with:
+         token: ${{ secrets.c8 }}
+         retain_days: 2
+         keep_minimum_runs: 0
+ build: 
+    needs: check
+    if: ${{ needs.check.outputs.ver != needs.check.outputs.cver }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - TARGET: amd64
+            OS: ubuntu-latest
+            AARCH: amd64
+            
+          - TARGET: arm64
+            OS: ubuntu-latest
+            ARCH: arm64
+            
+          - TARGET: mips
+            OS: ubuntu-latest
+            SOFT: softfloat
+            ARCH: mips
+            
+          - TARGET: mips64
+            OS: ubuntu-latest
+            SOFT: softfloat
+            ARCH: mips64
+            
+          - TARGET: mips64le
+            OS: ubuntu-latest
+            SOFT: softfloat
+            ARCH: mips64le
+            
+          - TARGET: mipsel
+            OS: ubuntu-latest
+            SOFT: softfloat
+            ARCH: mipsle
+            
+          - TARGET: ppc64le
+            OS: ubuntu-latest
+            SOFT: softfloat
+            ARCH: ppc64le
+
+          - TARGET: s390x
+            OS: ubuntu-latest
+            SOFT: softfloat
+            ARCH: s390x
+            
+          - TARGET: arm
+            OS: ubuntu-latest
+            SOFT: softfloat
+            ARCH: arm
+            
+          - TARGET: armv5l
+            OS: ubuntu-latest
+            SOFT: softfloat
+            ARM: 5
+            ARCH: arm
+            
+          - TARGET: armv6
+            OS: ubuntu-latest
+            SOFT: softfloat
+            ARM: 6
+            ARCH: arm
+
+          - TARGET: armv7l
+            OS: ubuntu-latest
+            SOFT: softfloat
+            ARM: 7
+            ARCH: arm
+            
+    runs-on: ${{ matrix.OS }}
+    env:
+      TARGET: ${{ matrix.TARGET }}
+      OS: ${{ matrix.OS }}
+      SOFT: ${{ matrix.SOFT }}
+      ARM: ${{ matrix.ARM }}
+      ARCH: ${{ matrix.ARCH }}
+    steps:
+      - name: 获取最新Go
+        run: |
+          latest_version=$(curl -L -k -s https://golang.org/dl/?mode=json | grep -m 1 -o '"version": "[^"]*' | sed 's/"version": "//' | tr -d 'go" ')
+          echo "go版本=$latest_version"
+          echo "gotag=$latest_version" >> $GITHUB_ENV
+      - name: 安装go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.gotag }}
+      -
+        name: 检查代码仓库
+        uses: actions/checkout@v4
+      - 
+        name: 编译
+        run: |
+          go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
+          tag=`curl https://api.github.com/repos/upx/upx/releases/latest | grep 'tag_name' | cut -d\" -f4 | tr -d " v "`
+          wget -q -c https://github.com/upx/upx/releases/download/v${tag}/upx-${tag}-amd64_linux.tar.xz -P /opt
+          tar -xf /opt/upx-${tag}-amd64_linux.tar.xz -C /opt
+          sudo cp -rf /opt/upx-${tag}-amd64_linux/upx /usr/bin/upx
+          
+          echo "开始构建"
+          mkdir -p /opt/caddy
+          cd /opt/caddy
+          sudo timedatectl set-timezone "Asia/Shanghai"
+          
+          GOOS=linux GOARCH=${ARCH} GOMIPS=${SOFT} GOARM=${ARM} xcaddy build \
+          --with github.com/mholt/caddy-webdav \
+          --with github.com/aksdb/caddy-cgi/v2
+          file caddy
+          du -k caddy
+          mv caddy caddy-${TARGET}
+          if [[ $TARGET != mips64 ]] && [[ $TARGET != mips64le ]] && [[ $TARGET != s390x ]] ;then
+          cp caddy-${TARGET} caddy-${TARGET}-upx
+          upx --lzma --best caddy-${TARGET}-upx
+          du -k caddy-${TARGET}-upx
+          fi
+          #sudo apt install qemu-user
+          #qemu-mipsel caddy -v
+          
+          echo "build_time=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+      - name: 发布
+        uses: softprops/action-gh-release@v1
+        with:
+            token: ${{ secrets.c8 }}
+            body: |
+             > ### 编译时间 ：${{ env.build_time }}
+
+              
+            tag_name: ${{ needs.check.outputs.ver }}
+            files: /opt/caddy/*
+     
+          
+      
