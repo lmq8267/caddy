@@ -1,5 +1,7 @@
 # 项目地址：[caddyserver/caddy](https://github.com/caddyserver/caddy)
 
+caddy的大概[命令参数](https://github.com/lmq8267/caddy/blob/main/README_caddy.md)
+
 ------------------------------------------------------------------------------
 
 ### 添加了两个插件：
