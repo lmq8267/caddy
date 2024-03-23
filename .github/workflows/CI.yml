@@ -64,34 +64,29 @@ jobs:
             
           - TARGET: ppc64le
             OS: ubuntu-latest
-            SOFT: softfloat
             ARCH: ppc64le
 
           - TARGET: s390x
             OS: ubuntu-latest
-            SOFT: softfloat
             ARCH: s390x
             
           - TARGET: arm
             OS: ubuntu-latest
-            SOFT: softfloat
+            ARM: 5
             ARCH: arm
             
           - TARGET: armv5l
             OS: ubuntu-latest
-            SOFT: softfloat
             ARM: 5
             ARCH: arm
             
           - TARGET: armv6
             OS: ubuntu-latest
-            SOFT: softfloat
             ARM: 6
             ARCH: arm
 
           - TARGET: armv7l
             OS: ubuntu-latest
-            SOFT: softfloat
             ARM: 7
             ARCH: arm
             
