@@ -1,4 +1,13 @@
 # 项目地址：[caddyserver/caddy](https://github.com/caddyserver/caddy)
+<p align="center">
+<a href="https://github.com/lmq8267/caddy/releases"><img src="https://img.shields.io/github/downloads/lmq8267/caddy/total">
+<a href="https://github.com/lmq8267/caddy/graphs/contributors"><img src="https://img.shields.io/github/contributors-anon/lmq8267/caddy">
+<a href="https://github.com/lmq8267/caddy/releases/"><img src="https://img.shields.io/github/release/lmq8267/caddy">
+<a href="https://github.com/lmq8267/caddy/issues"><img src="https://img.shields.io/github/issues-raw/lmq8267/caddy">
+<a href="https://github.com/lmq8267/caddy/discussions"><img src="https://img.shields.io/github/discussions/lmq8267/caddy">
+<a href="GitHub repo size"><img src="https://img.shields.io/github/repo-size/lmq8267/caddy?color=red&style=flat-square">
+<a href="https://github.com/lmq8267/caddy/actions?query=workflow%3ABuild"><img src="https://img.shields.io/github/actions/workflow/status/lmq8267/caddy/CI.yml?branch=main" alt="Build status">
+</p>
 
 caddy的大概[命令参数](https://github.com/lmq8267/caddy/blob/main/README_caddy.md)
 
