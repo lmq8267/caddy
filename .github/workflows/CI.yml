@@ -26,7 +26,7 @@ jobs:
         with:
          token: ${{ secrets.c8 }}
          retain_days: 2
-         keep_minimum_runs: 0
+         keep_minimum_runs: 1
  build: 
     needs: check
     if: ${{ needs.check.outputs.ver != needs.check.outputs.cver }}
@@ -37,63 +37,81 @@ jobs:
           - TARGET: amd64
             OS: ubuntu-latest
             AARCH: amd64
+            OOS: linux
             
           - TARGET: arm64
             OS: ubuntu-latest
             ARCH: arm64
+            OOS: linux
             
           - TARGET: mips
             OS: ubuntu-latest
             SOFT: softfloat
             ARCH: mips
+            OOS: linux
             
           - TARGET: mips64
             OS: ubuntu-latest
             SOFT: softfloat
             ARCH: mips64
+            OOS: linux
             
           - TARGET: mips64le
             OS: ubuntu-latest
             SOFT: softfloat
             ARCH: mips64le
+            OOS: linux
             
           - TARGET: mipsel
             OS: ubuntu-latest
             SOFT: softfloat
             ARCH: mipsle
+            OOS: linux
             
           - TARGET: ppc64le
             OS: ubuntu-latest
             ARCH: ppc64le
+            OOS: linux
 
           - TARGET: s390x
             OS: ubuntu-latest
             ARCH: s390x
+            OOS: linux
             
           - TARGET: arm
             OS: ubuntu-latest
             ARM: 5
             ARCH: arm
+            OOS: linux
             
           - TARGET: armv5l
             OS: ubuntu-latest
             ARM: 5
             ARCH: arm
+            OOS: linux
             
           - TARGET: armv6
             OS: ubuntu-latest
             ARM: 6
             ARCH: arm
+            OOS: linux
 
           - TARGET: armv7l
             OS: ubuntu-latest
             ARM: 7
             ARCH: arm
+            OOS: linux
+
+          - TARGET: freebsd-x86-64
+            OS: ubuntu-latest
+            ARCH: amd64
+            OOS: freebsd
             
     runs-on: ${{ matrix.OS }}
     env:
       TARGET: ${{ matrix.TARGET }}
       OS: ${{ matrix.OS }}
+      OOS: ${{ matrix.OOS }}
       SOFT: ${{ matrix.SOFT }}
       ARM: ${{ matrix.ARM }}
       ARCH: ${{ matrix.ARCH }}
@@ -110,27 +128,28 @@ jobs:
       -
         name: 检查代码仓库
         uses: actions/checkout@v4
+      - name: 安装 UPX
+        uses: crazy-max/ghaction-upx@v3
+        with:
+          version: latest
+          install-only: true
       - 
         name: 编译
         run: |
           go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
-          tag=`curl https://api.github.com/repos/upx/upx/releases/latest | grep 'tag_name' | cut -d\" -f4 | tr -d " v "`
-          wget -q -c https://github.com/upx/upx/releases/download/v${tag}/upx-${tag}-amd64_linux.tar.xz -P /opt
-          tar -xf /opt/upx-${tag}-amd64_linux.tar.xz -C /opt
-          sudo cp -rf /opt/upx-${tag}-amd64_linux/upx /usr/bin/upx
           
           echo "开始构建"
           mkdir -p /opt/caddy
           cd /opt/caddy
           sudo timedatectl set-timezone "Asia/Shanghai"
           
-          GOOS=linux GOARCH=${ARCH} GOMIPS=${SOFT} GOARM=${ARM} xcaddy build \
+          GOOS=${OOS} GOARCH=${ARCH} GOMIPS=${SOFT} GOARM=${ARM} xcaddy build \
           --with github.com/mholt/caddy-webdav \
           --with github.com/aksdb/caddy-cgi/v2
           file caddy
           du -k caddy
           mv caddy caddy-${TARGET}
-          if [[ $TARGET != mips64 ]] && [[ $TARGET != mips64le ]] && [[ $TARGET != s390x ]] ;then
+          if [[ $TARGET != mips64 ]] && [[ $TARGET != mips64le ]] && [[ $TARGET != s390x ]] && [[ $TARGET != freebsd-x86-64 ]] ;then
           cp caddy-${TARGET} caddy-${TARGET}-upx
           upx --lzma --best caddy-${TARGET}-upx
           du -k caddy-${TARGET}-upx
@@ -158,6 +177,15 @@ jobs:
               
             tag_name: ${{ needs.check.outputs.ver }}
             files: /opt/caddy/*
-     
-          
+ keepalive-workflow:
+    # github超过60天未提交将自动停止工作流
+    name: 工作流保活 
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: gautamkrishnar/keepalive-workflow@v2
+        #with:
+          #use_api: true
       
