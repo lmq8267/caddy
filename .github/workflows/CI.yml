@@ -144,7 +144,7 @@ jobs:
           sudo timedatectl set-timezone "Asia/Shanghai"
           
           GOOS=${OOS} GOARCH=${ARCH} GOMIPS=${SOFT} GOARM=${ARM} xcaddy build \
-          --with github.com/kingreatwill/caddy-modules/markdown@latest=./markdown \
+          --with github.com/kingreatwill/caddy-modules/markdown@latest \
           --with github.com/mholt/caddy-webdav \
           --with github.com/aksdb/caddy-cgi/v2
           file caddy
