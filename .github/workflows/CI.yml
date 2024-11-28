@@ -138,7 +138,7 @@ jobs:
         run: |
           go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
           git clone -b ${{ needs.check.outputs.ver }} https://github.com/caddyserver/caddy /opt/mycaddy
-          cp -rf ./browse.html /opt/caddy/modules/caddyhttp/fileserver/browse.html
+          cp -rf ./browse.html /opt/mycaddy/modules/caddyhttp/fileserver/browse.html
           echo "开始构建"
           mkdir -p /opt/caddy
           cd /opt/caddy
