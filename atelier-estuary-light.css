@@ -78,16 +78,3 @@
 .hljs-strong {
   font-weight: bold;
 }
-
-/* Highlight clickable links */
-.hljs-link {
-  color: #0080ff; /* 蓝色 */
-  text-decoration: underline; /* 添加下划线 */
-  cursor: pointer; /* 鼠标悬停样式 */
-}
-
-/* Hover effect for links */
-.hljs-link:hover {
-  color: #0056b3; /* 更深的蓝色 */
-  text-decoration: none; /* 去掉下划线 */
-}
