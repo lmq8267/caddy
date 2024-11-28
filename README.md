@@ -45,7 +45,7 @@ admin off # 关闭 API 端口 # 全局配置
  
  #在线打开文本显示中文字符不乱码
 header {
-                Content-Type "text/plain; charset=utf-8"
+                Content-Type "charset=utf-8"
         }
         
  log {
