@@ -48,7 +48,6 @@
   color: #5f9182;
 }
 
-/* Additions and Deletions */
 .hljs-deletion,
 .hljs-addition {
   color: #22221b;
@@ -64,7 +63,6 @@
   background-color: #7d9726;
 }
 
-/* Base Styles */
 .hljs {
   display: block;
   overflow-x: auto;
