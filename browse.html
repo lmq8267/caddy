@@ -303,8 +303,8 @@
 		<meta name="color-scheme" content="light dark">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css" integrity="sha512-Ya9H+OPj8NgcQk34nCrbehaA0atbzGdZCI2uCbqVRELgnlrh8vQ2INMnkadVMSniC54HChLIh5htabVuKJww8g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-		<script src="https://unpkg.com/@highlightjs/cdn-assets@11.8.0/highlight.min.js"></script>
-		<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/3.0.0/marked.min.js"></script>
 
 <style>
 /* Atelier-Estuary Comment */
@@ -1491,7 +1491,7 @@ document.onclick = onDocumentClickHandler;
 		</div>
 
 		<div class="wrapper">
-			<div class="breadcrumbs">当前路径</div>
+			<div class="breadcrumbs">当前文件路径</div>
 				<h1>
 					{{range $i, $crumb := .Breadcrumbs}}<a href="{{html $crumb.Link}}">{{html $crumb.Text}}</a>{{if ne $i 0}}/{{end}}{{end}}
 				</h1>
@@ -1663,7 +1663,7 @@ document.onclick = onDocumentClickHandler;
 									<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
 									<path d="M18 18h-6a3 3 0 0 1 -3 -3v-10l-4 4m8 0l-4 -4"></path>
 								</svg>
-								<span class="go-up">返回上个文件夹</span>
+								<span class="go-up">返回上级目录</span>
 							</a>
 						</td>
 						<td></td>
