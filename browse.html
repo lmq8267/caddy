@@ -819,7 +819,7 @@ footer {
 <body onload="initPage()">
 	<header>
 		<div class="wrapper">
-			<div class="breadcrumbs">文件夹路径</div>
+			<div class="breadcrumbs">当前路径</div>
 				<h1>
 					{{range $i, $crumb := .Breadcrumbs}}<a href="{{html $crumb.Link}}">{{html $crumb.Text}}</a>{{if ne $i 0}}/{{end}}{{end}}
 				</h1>
