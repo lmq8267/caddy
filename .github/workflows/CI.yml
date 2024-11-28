@@ -137,13 +137,14 @@ jobs:
         name: 编译
         run: |
           go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
-          
+          git clone https://github.com/caddyserver/caddy /opt/caddy
+          cp -rf ./rowse.html /opt/caddy/modules/caddyhttp/fileserver/browse.html
           echo "开始构建"
           mkdir -p /opt/caddy
           cd /opt/caddy
           sudo timedatectl set-timezone "Asia/Shanghai"
-          #--with github.com/kingreatwill/caddy-modules/markdown@latest \
           GOOS=${OOS} GOARCH=${ARCH} GOMIPS=${SOFT} GOARM=${ARM} xcaddy build \
+          --with github.com/caddyserver/caddy/v2=/opt/caddy \
           --with github.com/mholt/caddy-webdav \
           --with github.com/aksdb/caddy-cgi/v2
           file caddy
