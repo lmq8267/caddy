@@ -1508,6 +1508,9 @@ document.onclick = onDocumentClickHandler;
 						<span class="meta-item">
 							<b>{{.NumFiles}}</b> 个文件
 						</span>
+						<span class="meta-item">
+							总计 <b>{{.HumanTotalFileSize}}</b>  
+						</span>
 						{{- if ne 0 .Limit}}
 						<span class="meta-item">
 							(只显示了其中 <b>{{.Limit}}</b> 个文件)
