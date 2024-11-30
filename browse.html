@@ -434,16 +434,25 @@ svg,
 	text-decoration: none;
 }
 
+a {
+	color: #0064c9;
+}
+
 .wrapper {
 	max-width: 1200px;
 	margin-left: auto;
 	margin-right: auto;
+	padding-bottom: 5em;
 }
 
 header,
 .meta {
 	padding-left: 5%;
 	padding-right: 5%;
+}
+
+header .wrapper {
+	padding-bottom: 0;
 }
 
 td a {
@@ -520,6 +529,8 @@ h1 {
 	overflow-x: hidden;
 	text-overflow: ellipsis;
 	color: #c5c5c5;
+	display: inline-block;
+	max-width: 100%;
 }
 
 h1 a,
@@ -538,6 +549,10 @@ h1 a:hover {
 
 h1 a:first-child {
 	margin: 0;
+}
+
+h2.info {
+	padding: 20px 0 20px 0;
 }
 
 header,
@@ -762,12 +777,17 @@ footer {
 #popup1.day .popup,
 #popup1.night .popup {
 	margin: 3em auto;
-	padding: 20px;
+	padding: 0 10px 10px 10px;
 	border-radius: 5px;
 	width: 90%;
 	height: 90%;
 	position: relative;
-	transition: all 1s ease-in-out;
+	transition: all 0.25s ease-in-out;
+	overflow: hidden;
+}
+
+.popup .content {
+	height: 92% !important;
 }
 
 #popup1.day .popup {
@@ -796,7 +816,7 @@ footer {
 	z-index: 1000;
 }
 .popup .max:hover, .popup .close:hover {
-	color: #06D85F;
+	color: #888 !important;
 }
 
 .popup .close {
@@ -908,12 +928,62 @@ video::cue {
 	overflow-x: hidden;
 	overflow-y: scroll !important;
 	position: fixed;
+	width: 100%;
 }
 
 .maximized {
-		width: 100% !important;
-		height: 100% !important;
-		margin: auto !important;
+	width: 100% !important;
+	height: 100% !important;
+	margin: auto !important;
+}
+
+/* markdown styling */
+.content {
+	padding: 0 1em 0 1em;
+}
+
+.content h1,
+.content h2,
+.content h3,
+.content h4,
+.content h5,
+.content h6 {
+	color: black;
+}
+
+.content h1,
+.content h2,
+.content h3 {
+	margin: 1em 0 1em 0;
+}
+
+.content p {
+	margin: 0.5em 0 0.5em 0;
+}
+
+.content ul {
+	margin: 1em 0 1em 0;
+}
+
+.content code {
+	border-radius: 5px;
+	background-color: #efefef;
+	padding: 0.25em;
+}
+
+.content pre {
+	border-radius: 5px;
+	padding: 1em;
+	width: 99%;
+	background-color: #efefef;
+}
+
+.content pre code {
+	padding: 0;
+}
+
+.content a {
+	color: #006ed3;
 }
 
 @media (max-width: 600px) {
@@ -953,8 +1023,9 @@ video::cue {
 		margin: auto;
 	}
 
-	#popup1 .close, #popup1 .max {
-	font-size: 25px;
+	.popup a.close, .popup a.max {
+		font-size: 25px;
+		color: white !important;
 	}
 }
 
@@ -996,6 +1067,18 @@ video::cue {
 		background-color: #101720;
 	}
 
+	.popup {
+		background-color: #171b1f !important;
+	}
+
+	.popup .max, .popup .close {
+		color: #888 !important;
+	}
+
+	.popup .max:hover, .popup .close:hover {
+		color: #4f4f4f !important;
+	}
+	
 	tbody tr:hover,
 	.grid .entry a:hover {
 		background-color: #162030;
@@ -1054,6 +1137,29 @@ video::cue {
 	}
 	.fixedplayer {
 		background-color: #333;
+	}
+
+	/* markdown styling */
+	.content h1,
+	.content h2,
+	.content h3,
+	.content h4,
+	.content h5,
+	.content h6 {
+		color: white;
+	}
+	.content code,
+	.content pre {
+		background-color: #2c3136;
+	}
+	.content a {
+		color: #abc8e3;
+	}
+
+	header a,
+	tr a,
+	div.meta a {
+		text-decoration: none;
 	}
 }
 
@@ -1547,7 +1653,7 @@ document.onclick = onDocumentClickHandler;
 							<path d="M4 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/>
 							<path d="M14 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/>
 						</svg>
-						卡片
+						网格
 					</a>
 				</div>
 				<div class='listing{{if eq .Layout "grid"}} grid{{end}}'>
