@@ -147,8 +147,8 @@ jobs:
       - name: 上传
         uses: actions/upload-artifact@v4
         with:
-          name: caddy-${{ github.event.inputs.branch }}-$TARGET
-          path: /opt/caddy/*
+          name: caddy-${{ github.event.inputs.branch }}-${{ matrix.TARGET }}
+          path: /opt/caddy/
       - name: 发布
         uses: softprops/action-gh-release@v1
         with:
