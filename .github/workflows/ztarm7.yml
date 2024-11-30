@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: '编译github.tailscale/tailscale分支或版本号，默认主分支main'
+        description: '编译github.tailscale/tailscale分支或版本号，默认主分支master'
         required: true
-        default: 'v1.68.0'
+        default: 'v2.8.4'
       info:
         description: '发布Release的补充说明'
         required: false
