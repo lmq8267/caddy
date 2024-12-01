@@ -128,14 +128,12 @@ jobs:
           cp -rf ./browse.html /opt/mycaddy/modules/caddyhttp/fileserver/browse.html
           echo "开始构建"
           mkdir -p /opt/caddy
-          cd /opt/mycaddy
+          cd /opt/caddy
           sudo timedatectl set-timezone "Asia/Shanghai"
           GOOS=${OOS} GOARCH=${ARCH} GOMIPS=${SOFT} GOARM=${ARM} xcaddy build \
-          --with /opt/mycaddy/modules/caddyhttp/fileserver \
-          --with /opt/mycaddy/modules/caddyhttp/caddyauth \
-          --with github.com/mholt/caddy-webdav \
-          --output /opt/caddy/caddy
-          cd /opt/caddy
+          --with github.com/caddyserver/caddy/v2/modules/caddyhttp/fileserver=/opt/mycaddy/modules/caddyhttp/fileserver \
+          --with github.com/caddyserver/caddy/v2/modules/caddyhttp/caddyauth=/opt/mycaddy/modules/caddyhttp/caddyauth \
+          --with github.com/mholt/caddy-webdav 
           file caddy
           du -k caddy
           mv caddy caddy-${TARGET}
