@@ -1475,7 +1475,7 @@ let offsetX = 0, offsetY = 0;
 function enableImageZoom(img) {
     resetImageScale(img); 
     let content = img.closest('.content'); 
-    content.style.overflow = 'hidden'; 
+    //content.style.overflow = 'hidden'; 
 
     img.addEventListener("wheel", function(e) {
         e.preventDefault();
