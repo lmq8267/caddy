@@ -783,7 +783,7 @@ footer {
 #popup1.day .popup,
 #popup1.night .popup {
 	margin: 3em auto;
-	padding: 0 10px 10px 10px;
+	padding: 0 1px 20px 1px;
 	border-radius: 5px;
 	width: 90%;
 	height: 90%;
@@ -986,10 +986,14 @@ video::cue {
 }
 
 .content pre {
-	border-radius: 5px;
-	padding: 1em;
-	width: 99%;
-	background-color: #f4f3ec;
+    border-radius: 5px;
+    padding: 1em;
+    width: 100%; 
+    max-width: 100%;
+    max-height: 100%;
+    background-color: #f4f3ec;
+    overflow: auto;
+    box-sizing: border-box;
 }
 
 .content pre code {
