@@ -381,7 +381,6 @@
   color: #5f5e4e;
   padding: 0.5em;
 }
-	
 .hljs.night {
   display: block;
   overflow-x: auto;
@@ -836,17 +835,25 @@ footer {
 	z-index: 1000;
 }
 
-#popup1 .content>img {
-	max-width: 100%;
-	max-height: 90%;
+#popup1 .content {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+#popup1 .content > img {
+	max-width: none;
+	max-height: 80vh;
 	margin: auto;
 	display: block;
-	margin: auto;
-	top:0;
-	bottom:0;
-	left:0;
-	right:0;
-	position:absolute;
+	position: absolute;
+	top: 50%;
+	left: 50%; 
+	transform: translate(-50%, -50%);
+	cursor: pointer;
+	transition: transform 0.1s ease;
+	transform-origin: center center;
+	pointer-events: auto;
 }
 
 #popup1.day .popup .close, 
@@ -1447,7 +1454,119 @@ function toggleRestoreModal (popup) {
 	var popup = popup || document.querySelector('#popup1');
 	if (popup.style.display !== 'none') {
 		popup.querySelector('.popup').classList.toggle('maximized');
+		let content = document.querySelector("#popup1 .content");
+		let img = content.querySelector("img");
+		if (img) {
+			enableImageZoom(img);
+    		}
 	}
+}
+
+let scale = 1; 
+let startDistance = 0; 
+let isDragging = false; 
+let dragStartX = 0, dragStartY = 0; 
+let offsetX = 0, offsetY = 0; 
+
+function enableImageZoom(img) {
+    resetImageScale(img); 
+    let content = img.closest('.content'); 
+    content.style.overflow = 'hidden'; 
+
+    img.addEventListener("wheel", function(e) {
+        e.preventDefault();
+        if (e.deltaY < 0) {
+            scale += 0.1; 
+        } else {
+            scale -= 0.1; 
+        }
+        img.style.transform = `scale(${scale}) translate(${offsetX}px, ${offsetY}px)`;
+    });
+
+    img.addEventListener("mousedown", function(e) {
+        e.preventDefault();
+        isDragging = true; 
+        dragStartX = e.clientX - offsetX;
+        dragStartY = e.clientY - offsetY;
+    });
+
+    img.addEventListener("mousemove", function(e) {
+        if (isDragging) {
+            offsetX = e.clientX - dragStartX;
+            offsetY = e.clientY - dragStartY;
+            img.style.transform = `scale(${scale}) translate(${offsetX}px, ${offsetY}px)`; 
+        }
+    });
+
+    img.addEventListener("mouseup", function() {
+        isDragging = false; 
+    });
+
+    img.addEventListener("mouseleave", function() {
+        isDragging = false; 
+    });
+
+    img.addEventListener("dblclick", function() {
+        scale = 1; 
+        offsetX = 0;
+        offsetY = 0;
+        img.style.transform = `scale(${scale}) translate(${offsetX}px, ${offsetY}px)`;
+    });
+
+    img.addEventListener('touchstart', function(e) {
+        if (e.touches.length === 2) {
+            startDistance = getDistance(e.touches[0], e.touches[1]);
+            e.preventDefault();
+        }
+        if (e.touches.length === 1) {
+            dragStartX = e.touches[0].clientX - offsetX;
+            dragStartY = e.touches[0].clientY - offsetY;
+        }
+    });
+
+    img.addEventListener('touchmove', function(e) {
+        if (e.touches.length === 2) {
+            const distance = getDistance(e.touches[0], e.touches[1]);
+            const scaleChange = distance / startDistance;
+            scale *= scaleChange; 
+            img.style.transform = `scale(${scale}) translate(${offsetX}px, ${offsetY}px)`;
+            startDistance = distance; 
+            e.preventDefault();
+        }
+        if (e.touches.length === 1) {
+            offsetX = e.touches[0].clientX - dragStartX;
+            offsetY = e.touches[0].clientY - dragStartY;
+            img.style.transform = `scale(${scale}) translate(${offsetX}px, ${offsetY}px)`;
+        }
+    });
+}
+
+function resetImageScale(img) {
+    const content = document.querySelector("#popup1 .content");
+    const containerWidth = content.offsetWidth;
+    const containerHeight = content.offsetHeight;
+    const imgWidth = img.naturalWidth;
+    const imgHeight = img.naturalHeight;
+
+    const widthScale = containerWidth / imgWidth;
+    const heightScale = containerHeight / imgHeight;
+
+    scale = Math.min(widthScale, heightScale); 
+    img.style.transform = `scale(${scale})`;  
+
+    const contentRect = content.getBoundingClientRect();
+    const imgRect = img.getBoundingClientRect();
+    offsetX = (contentRect.width - imgRect.width) / 2;
+    offsetY = (contentRect.height - imgRect.height) / 2;
+
+    img.style.left = `${offsetX}px`;
+    img.style.top = `${offsetY}px`;
+}
+
+function getDistance(touch1, touch2) {
+    const dx = touch2.pageX - touch1.pageX;
+    const dy = touch2.pageY - touch1.pageY;
+    return Math.sqrt(dx * dx + dy * dy);
 }
 
 function onAudioEnded(el) {
