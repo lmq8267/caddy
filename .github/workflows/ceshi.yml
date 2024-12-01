@@ -129,7 +129,6 @@ jobs:
           echo "开始构建"
           mkdir -p /opt/caddy
           cd /opt/mycaddy
-          go mod init caddy
           sudo timedatectl set-timezone "Asia/Shanghai"
           GOOS=${OOS} GOARCH=${ARCH} GOMIPS=${SOFT} GOARM=${ARM} xcaddy build \
           --with /opt/mycaddy/modules/caddyhttp/fileserver \
