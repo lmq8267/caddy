@@ -1,96 +1,151 @@
-name: A测试编译zerotier
+name: 测试编译精简caddy
 
 on:
   workflow_dispatch:
+    inputs:
+      branch:
+        description: '编译github.tailscale/tailscale分支或版本号，默认主分支master'
+        required: true
+        default: 'v2.8.4'
+      info:
+        description: '发布Release的补充说明'
+        required: false
+        default: ''
+
+env:
+  TZ: Asia/Shanghai
+  tag: "${{ github.event.inputs.branch }}"
 jobs:
- build:
-    runs-on: ubuntu-latest
+ build: 
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - TARGET: amd64
+            OS: ubuntu-latest
+            AARCH: amd64
+            OOS: linux
+            
+          - TARGET: arm64
+            OS: ubuntu-latest
+            ARCH: arm64
+            OOS: linux
+            
+          - TARGET: mips
+            OS: ubuntu-latest
+            SOFT: softfloat
+            ARCH: mips
+            OOS: linux
+            
+          - TARGET: mips64
+            OS: ubuntu-latest
+            SOFT: softfloat
+            ARCH: mips64
+            OOS: linux
+            
+          - TARGET: mips64le
+            OS: ubuntu-latest
+            SOFT: softfloat
+            ARCH: mips64le
+            OOS: linux
+            
+          - TARGET: mipsel
+            OS: ubuntu-latest
+            SOFT: softfloat
+            ARCH: mipsle
+            OOS: linux
+            
+          - TARGET: ppc64le
+            OS: ubuntu-latest
+            ARCH: ppc64le
+            OOS: linux
+
+          - TARGET: s390x
+            OS: ubuntu-latest
+            ARCH: s390x
+            OOS: linux
+            
+          - TARGET: arm
+            OS: ubuntu-latest
+            ARM: 5
+            ARCH: arm
+            OOS: linux
+            
+          - TARGET: armv5l
+            OS: ubuntu-latest
+            ARM: 5
+            ARCH: arm
+            OOS: linux
+            
+          - TARGET: armv6
+            OS: ubuntu-latest
+            ARM: 6
+            ARCH: arm
+            OOS: linux
+
+          - TARGET: armv7l
+            OS: ubuntu-latest
+            ARM: 7
+            ARCH: arm
+            OOS: linux
+
+          - TARGET: freebsd-x86-64
+            OS: ubuntu-latest
+            ARCH: amd64
+            OOS: freebsd
+            
+    runs-on: ${{ matrix.OS }}
+    env:
+      TARGET: ${{ matrix.TARGET }}
+      OS: ${{ matrix.OS }}
+      OOS: ${{ matrix.OOS }}
+      SOFT: ${{ matrix.SOFT }}
+      ARM: ${{ matrix.ARM }}
+      ARCH: ${{ matrix.ARCH }}
     steps:
-      - uses: actions/checkout@v3
-      - name: 下载编译工具链
+      - name: 获取最新Go
         run: |
-          echo -e "\n\033[42;31;5;1m 开始克隆源码... \n\033[0m"
-          git clone https://github.com/zerotier/ZeroTierOne -b 1.12.2 /opt/zt
-          mkdir -p /opt/musl_gcc 
-          echo -e "\n\033[42;31;5;1m 开始下载musl工具链.. \n\033[0m"
-          wget -q -c https://github.com/lmq8267/vnt-cli/releases/download/Armada370-ToolChain/buildroot-2023.02.5-mipsel-uclibc.zip -P /opt/musl_gcc/
-          echo -e "\n\033[42;31;5;1m 开始解压musl工具链.. \n\033[0m"
-          unzip -q  /opt/musl_gcc/buildroot-2023.02.5-mipsel-uclibc.zip -d /opt/musl_gcc/
-          echo -e "\n\033[42;31;5;1m 查看musl-gcc信息 \n\033[0m"
-          sudo chmod -R +x /opt/musl_gcc 
-          /opt/musl_gcc/host/bin/mipsel-buildroot-linux-uclibc-gcc -v
+          latest_version=$(curl -L -k -s https://golang.org/dl/?mode=json | grep -m 1 -o '"version": "[^"]*' | sed 's/"version": "//' | tr -d 'go" ')
+          echo "go版本=$latest_version"
+          echo "gotag=$latest_version" >> $GITHUB_ENV
+      - name: 安装go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.gotag }}
+      -
+        name: 检查代码仓库
+        uses: actions/checkout@v4
+      - name: 安装 UPX
+        uses: crazy-max/ghaction-upx@v3
+        with:
+          version: latest
+          install-only: true
       - 
-        name: 编译zerotier
-        shell: bash
+        name: 编译
         run: |
-          cd /opt/zt
-          echo -e "\n\033[42;31;5;1m 修改zerotier源码 \n\033[0m"
-          sed -i 's|-fPIC -fPIE|-fPIC -fPIE -static|g' ./make-linux.mk
-          sed -i '/include objects.mk/i    LDLIBS+=-latomic' ./make-linux.mk
-          sed -i 's|override CFLAGS+=-march=armv5t -mfloat-abi=soft -msoft-float -mno-unaligned-access -marm|override CFLAGS+=-mfloat-abi=soft -msoft-float -mno-unaligned-access -marm|g' ./make-linux.mk
-          sed -i 's|override CXXFLAGS+=-march=armv5t -mfloat-abi=soft -msoft-float -mno-unaligned-access -marm|override CXXFLAGS+=-mfloat-abi=soft -msoft-float -mno-unaligned-access -marm|g' ./make-linux.mk
-          sed -i 's|override CFLAGS+=-mfloat-abi=hard -march=armv6zk -marm -mfpu=vfp -mno-unaligned-access -mtp=cp15 -mcpu=arm1176jzf-s|override CFLAGS+=-mfloat-abi=soft -msoft-float -mno-unaligned-access -marm|g' ./make-linux.mk
-          sed -i 's|override CXXFLAGS+=-mfloat-abi=hard -march=armv6zk -marm -mfpu=vfp -fexceptions -mno-unaligned-access -mtp=cp15 -mcpu=arm1176jzf-s|override CXXFLAGS+=-mfloat-abi=soft -msoft-float -mno-unaligned-access -marm|g' ./make-linux.mk
-          echo -e "\n\033[42;31;5;1m 修改arm7l架构密钥存储路径 \n\033[0m"
-          sed -i 's|/var/lib/zerotier-one|/etc/zerotier-one|g' ./osdep/OSUtils.cpp
-          cat ./osdep/OSUtils.cpp | grep /zerotier-one
-          MAC="$(grep -n "ioctl(sock,SIOCSIFHWADDR,(void" ./osdep/LinuxEthernetTap.cpp | head -2 | tail -1 | awk '{print $1}' | tr -d ": ")" && echo -e "\n\033[42;31;5;1m 删除第 ${t} 行 \n\033[0m" &&  sed -i "$((MAC)),+5d" ./osdep/LinuxEthernetTap.cpp && cat ./osdep/LinuxEthernetTap.cpp | grep MAC
- 
-          echo -e "\n\033[42;31;5;1m 设置编译环境变量 \n\033[0m"
+          go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
+          git clone -b ${{ github.event.inputs.branch }} https://github.com/caddyserver/caddy /opt/mycaddy
+          cp -rf ./browse.html /opt/mycaddy/modules/caddyhttp/fileserver/browse.html
+          echo "开始构建"
+          mkdir -p /opt/caddy
+          cd /opt/caddy
           sudo timedatectl set-timezone "Asia/Shanghai"
-          export PATH=$PATH:/opt/musl_gcc/host/bin
-          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/musl_gcc/host/lib
-          export CC=mipsel-buildroot-linux-uclibc-gcc
-          export CXX=mipsel-buildroot-linux-uclibc-g++
-          export AR=mipsel-buildroot-linux-uclibc-ar
-          export LD=mipsel-buildroot-linux-uclibc-ld
-          export RANLIB=mipsel-buildroot-linux-uclibc-ranlib
-          export STRIP=mipsel-buildroot-linux-uclibc-strip
-          export CFLAGS="-I /opt/musl_gcc/host/include -L /opt/musl_gcc/host/lib -Wl,--gc-sections -Os -ffunction-sections -fdata-sections -D_GNU_SOURCE -D_BSD_SOURCE -fPIE"
-          export CXXFLAGS="$CFLAGS"
-          export TARGET_CFLAGS=" -DNDEBUG -DBOOST_NO_FENV_H -DBOOST_DISABLE_ASSERTS"
-          echo -e "\n\033[42;31;5;1m 开始编译... \n\033[0m"
-          CC=mipsel-buildroot-linux-uclibc-gcc \
-          STRIP=mipsel-buildroot-linux-uclibc-strip \
-          ZT_STATIC=1 \
-          OSTYPE="Linux" \
-          make
-      - 
-        name: 剥离压缩
-        run: |
-          echo -e "\n\033[42;31;5;1m 开始下载指定版本upx \n\033[0m"
-          git clone https://github.com/lmq8267/cloudflared.git /opt/st
-          tar -xf /opt/st/upx-3.95-amd64_linux.tar.xz -C /opt
-          chmod 777 /opt/upx-3.95-amd64_linux/upx
-          cd /opt/zt
-          echo -e "\n\033[42;31;5;1m 查看二进制程序信息 \n\033[0m"
-          file zerotier-one
-          strings zerotier-one | grep /zerotier-one
-          echo -e "\n\033[42;31;5;1m 查看原始体积 \n\033[0m"
-          du -k zerotier-one
-          echo -e "\n\033[42;31;5;1m 开始剥离... \n\033[0m"
-          /opt/musl_gcc/host/bin/mipsel-buildroot-linux-uclibc-strip zerotier-one
-          echo -e "\n\033[42;31;5;1m 查看剥离后的体积 \n\033[0m"
-          du -k zerotier-one
-          echo -e "\n\033[42;31;5;1m 开始upx压缩... \n\033[0m"
-          /opt/upx-3.95-amd64_linux/upx --lzma --best zerotier-one
-          echo -e "\n\033[42;31;5;1m 查看压缩后的体积 \n\033[0m"
-          du -k zerotier-one
-          ln -sf zerotier-one zerotier-cli
-          ln -sf zerotier-one zerotier-idtool
-          tar czvf zerotier-one_mipsel.tar.gz zerotier-one zerotier-cli zerotier-idtool
-          echo -e "\n\033[42;31;5;1m 编译时间：$(date '+%Y-%m-%d %H:%M:%S') \n\033[0m"
+          GOOS=${OOS} GOARCH=${ARCH} GOMIPS=${SOFT} GOARM=${ARM} xcaddy build \
+          --with /opt/mycaddy/modules/caddyhttp/fileserver \
+          --with /opt/mycaddy/modules/caddyhttp/caddyauth \
+          --with github.com/mholt/caddy-webdav
+          file caddy
+          du -k caddy
+          mv caddy caddy-${TARGET}
+          if [[ $TARGET != mips64 ]] && [[ $TARGET != mips64le ]] && [[ $TARGET != s390x ]] && [[ $TARGET != freebsd-x86-64 ]] ;then
+          cp caddy-${TARGET} caddy-${TARGET}-upx
+          upx --lzma --best caddy-${TARGET}-upx
+          du -k caddy-${TARGET}-upx
+          fi
+          
           echo "build_time=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
-      -  name: 发布release
-         uses: softprops/action-gh-release@v1
-         with:
-          token: ${{ secrets.c8 }}
-          body: |
-           > ### 编译时间：${{ env.build_time }}
-
-           zerotier-one_CPU架构_etc.tar.gz    密钥路径/etc/zerotier-one
-
-           zerotier-one_CPU架构_opt.tar.gz    密钥路径/opt/var/lib/zerotier-one
-           
-          tag_name: zerotier
-          files: /opt/zt/zerotier-one_mipsel.tar.gz
+      - name: 上传
+        uses: actions/upload-artifact@v4
+        with:
+          name: caddy-${{ github.event.inputs.branch }}-${{ matrix.TARGET }}
+          path: /opt/caddy/
