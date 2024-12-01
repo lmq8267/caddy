@@ -1542,25 +1542,34 @@ function enableImageZoom(img) {
 }
 
 function resetImageScale(img) {
-    const content = document.querySelector("#popup1 .content");
-    const containerWidth = content.offsetWidth;
-    const containerHeight = content.offsetHeight;
+    const content = document.querySelector("#popup1 .content"); 
+    const containerWidth = content.offsetWidth; 
+    const containerHeight = content.offsetHeight; 
     const imgWidth = img.naturalWidth;
     const imgHeight = img.naturalHeight;
 
+   
     const widthScale = containerWidth / imgWidth;
     const heightScale = containerHeight / imgHeight;
+    let calculatedScale = Math.min(widthScale, heightScale);
 
-    scale = Math.min(widthScale, heightScale); 
-    img.style.transform = `scale(${scale})`;  
+   
+    const minScale = 0.8;
+    if (calculatedScale < minScale) {
+        calculatedScale = minScale; 
+    }
 
-    const contentRect = content.getBoundingClientRect();
-    const imgRect = img.getBoundingClientRect();
+    scale = calculatedScale; 
+    img.style.transform = `scale(${scale})`;
+
+    const contentRect = content.getBoundingClientRect(); 
+    const imgRect = img.getBoundingClientRect(); 
+
     offsetX = (contentRect.width - imgRect.width) / 2;
     offsetY = (contentRect.height - imgRect.height) / 2;
 
     img.style.left = `${offsetX}px`;
-    img.style.top = `${offsetY}px`;
+    img.style.top = `${offsetY}px`; 
 }
 
 function getDistance(touch1, touch2) {
