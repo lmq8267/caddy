@@ -144,6 +144,8 @@ jobs:
           sed -i 's/full += " => " + module.Replace.Path/full = module.Version/g' /opt/mycaddy/caddy.go
           sed -i 's/simple = module.Replace.Version + "_custom"/simple = module.Version/g' /opt/mycaddy/caddy.go
           sed -i 's/full += " " + module.Replace.Sum/full = module.Version/g' /opt/mycaddy/caddy.go
+          cat /opt/mycaddy/cmd/main.go
+          
           
           echo "开始构建"
           mkdir -p /opt/caddy
