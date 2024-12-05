@@ -130,6 +130,7 @@ jobs:
           sed -i 's/full += " " + module.Sum/full = module.Version/g' /opt/mycaddy/caddy.go
           sed -i 's/full += " => " + module.Replace.Path/full = module.Version/g' /opt/mycaddy/caddy.go
           sed -i 's/simple = module.Replace.Version + "_custom"/simple = module.Version/g' /opt/mycaddy/caddy.go
+          sed -i 's/full += "@" + module.Replace.Version/full = module.Version/g' /opt/mycaddy/caddy.go
           sed -i 's/full += " " + module.Replace.Sum/full = module.Version/g' /opt/mycaddy/caddy.go
           
           echo "开始构建"
