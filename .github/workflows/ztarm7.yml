@@ -137,7 +137,7 @@ jobs:
           cd /opt/caddy
           sudo timedatectl set-timezone "Asia/Shanghai"
           GOOS=${OOS} GOARCH=${ARCH} GOMIPS=${SOFT} GOARM=${ARM} xcaddy build \
-          --with github.com/caddyserver/caddy/v2=/opt/mycaddy@${{ github.event.inputs.branch }} \
+          --with github.com/caddyserver/caddy/v2=/opt/mycaddy \
           --with github.com/mholt/caddy-webdav \
           --with github.com/aksdb/caddy-cgi/v2
           file caddy
