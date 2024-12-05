@@ -126,12 +126,18 @@ jobs:
           go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
           git clone -b ${{ github.event.inputs.branch }} https://github.com/caddyserver/caddy /opt/mycaddy
           cp -rf ./browse.html /opt/mycaddy/modules/caddyhttp/fileserver/browse.html
+          sed -i 's/caddy\.Log().Warn("failed to set GOMAXPROCS", zap.Error(err))/_ = err/g' /opt/mycaddy/cmd/main.go
+          sed -i 's/full += " " + module.Sum/full = module.Version/g' /opt/mycaddy/caddy.go
+          sed -i 's/full += " => " + module.Replace.Path/full = module.Version/g' /opt/mycaddy/caddy.go
+          sed -i 's/simple = module.Replace.Version + "_custom"/simple = module.Version/g' /opt/mycaddy/caddy.go
+          sed -i 's/full += " " + module.Replace.Sum/full = module.Version/g' /opt/mycaddy/caddy.go
+          
           echo "开始构建"
           mkdir -p /opt/caddy
           cd /opt/caddy
           sudo timedatectl set-timezone "Asia/Shanghai"
           GOOS=${OOS} GOARCH=${ARCH} GOMIPS=${SOFT} GOARM=${ARM} xcaddy build \
-          --with github.com/caddyserver/caddy/v2=/opt/mycaddy \
+          --with github.com/caddyserver/caddy/v2=/opt/mycaddy@${{ github.event.inputs.branch }} \
           --with github.com/mholt/caddy-webdav \
           --with github.com/aksdb/caddy-cgi/v2
           file caddy
