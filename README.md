@@ -9,7 +9,8 @@
 <a href="https://github.com/lmq8267/caddy/actions?query=workflow%3ABuild"><img src="https://img.shields.io/github/actions/workflow/status/lmq8267/caddy/CI.yml?branch=main" alt="Build status">
 </p>
 
-caddy的大概[命令参数](https://github.com/lmq8267/caddy/blob/main/README_caddy.md)
+caddy的大概[命令参数](https://github.com/lmq8267/caddy/blob/main/README_caddy.md)  
+文件服务器的[UI预览效果图](https://github.com/lmq8267/caddy/edit/main/README.md#ui%E9%A2%84%E8%A7%88)
 
 ------------------------------------------------------------------------------
 
@@ -91,3 +92,22 @@ tls {
 ```shell
 /tmp/caddy hash-password  --plaintext 123456
 ```
+
+----------------------------------------------------------------------------
+
+### UI预览
+
+###### 1.全中文界面 支持文件夹内`README.md`预览
+
+![](./img/样式1.png)
+
+###### 2.支持脚本文件预览
+
+![](./img/样式2.png)
+
+###### 3.照片、视频、音频 的预览和播放
+
+![](./img/样式3.png)
+
+
+
