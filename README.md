@@ -10,7 +10,7 @@
 </p>
 
 caddy的大概[命令参数](https://github.com/lmq8267/caddy/blob/main/README_caddy.md)  
-文件服务器的[UI预览效果图](https://github.com/lmq8267/caddy/edit/main/README.md#ui%E9%A2%84%E8%A7%88)
+文件服务器的[UI预览效果图](https://github.com/lmq8267/caddy/tree/main#ui%E9%A2%84%E8%A7%88)
 
 ------------------------------------------------------------------------------
 
