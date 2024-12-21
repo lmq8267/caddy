@@ -1179,7 +1179,33 @@ video::cue {
 		text-decoration: none;
 	}
 }
+        .latency {
+            position: fixed; /* 固定位置 */
+            top: 0px; /* 距离顶部10px */
+            right: 0px; /* 距离右边20px */
+            padding: 5px 10px; /* 内边距 */
+            border-radius: 5px; /* 圆角 */
+            font-size: 10px; /* 字体大小 */
+            font-weight: bold; /* 字体加粗 */
+            z-index: 2; /* 设置层叠顺序 */
+            max-width: 30%; /* 最大宽度为30% */
+            word-wrap: break-word; /* 自动换行 */
+        }
+	
+        .latency.green {
+            background-color: transparent; /* 取消背景 */
+    	    color: #28a745; /* 绿色字体 */
+        }
 
+        .latency.orange {
+            background-color: transparent;
+            color: #ffc107; /* 橙色字体 */
+        }
+
+        .latency.red {
+            background-color: transparent; 
+            color: #dc3545; /* 红色字体 */
+        }
 </style>
 <script>
     (function () {
@@ -2169,6 +2195,37 @@ document.onclick = onDocumentClickHandler;
 			}
 			var timeList = Array.prototype.slice.call(document.getElementsByTagName("time"));
 			timeList.forEach(localizeDatetime);
+			
+			document.addEventListener("DOMContentLoaded", () => {
+    			const latencyDisplay = document.createElement('div');
+    			latencyDisplay.className = 'latency green';
+	    		latencyDisplay.innerText = '';
+			document.body.appendChild(latencyDisplay);
+				
+    			function updateLatency() {
+        			const startTime = Date.now();
+				fetch(window.location.href, { method: 'HEAD', cache: 'no-cache' })
+            				.then(() => {
+                				const latency = Date.now() - startTime;
+                				if (latency < 100) {
+                    					latencyDisplay.className = 'latency green';
+                				} else if (latency < 300) {
+                    					latencyDisplay.className = 'latency orange';
+                				} else {
+                    					latencyDisplay.className = 'latency red';
+                				}
+                				latencyDisplay.innerText = `${latency} ms`;
+            				})
+            				.catch(() => {
+               	 				latencyDisplay.className = 'latency red';
+                				latencyDisplay.innerText = '';
+            				});
+    			}
+
+    			updateLatency();
+
+    			setInterval(updateLatency, 5000);
+			});
 		</script>
 		<div id="popup1" class="overlay">
 			<div class="popup">
