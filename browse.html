@@ -812,6 +812,19 @@ footer {
 	text-align: center;
 }
 
+.popup .download {
+	position: absolute;
+	top: 10px;
+	right: 70px;
+	transition: all 200ms;
+	font-weight: bold;
+	text-decoration: none;
+	z-index: 1000;
+}
+.popup .download:hover, .popup .close:hover {
+	color: #06D85F;
+}
+	
 .popup .max {
 	position: absolute;
 	top: 10px;
@@ -827,12 +840,13 @@ footer {
 
 .popup .close {
 	position: absolute;
-	top: 10px;
+	top: -1px;
 	right: 10px;
 	transition: all 200ms;
 	font-weight: bold;
 	text-decoration: none;
 	z-index: 1000;
+	font-size: 30px;
 }
 
 #popup1 .content {
@@ -857,11 +871,13 @@ footer {
 }
 
 #popup1.day .popup .close, 
+#popup1.day .popup .download, 
 #popup1.day .popup .max {
 	color: #333;
 }
 
 #popup1.night .popup .close, 
+#popup1.night .popup .download, 
 #popup1.night .popup .max {
 	color: #e1e0e0;
 }
@@ -1041,8 +1057,16 @@ video::cue {
 		margin: auto;
 	}
 
-	.popup a.close, .popup a.max {
+	.popup a.max {
 		font-size: 25px;
+		right: 48px;
+	}
+	.popup a.download {
+		font-size: 25px;
+		right: 90px;
+	}
+	.popup a.close {
+		font-size: 40px;
 	}
 }
 
@@ -1088,11 +1112,11 @@ video::cue {
 		background-color: #171b1f !important;
 	}
 
-	.popup .max, .popup .close {
+	.popup .download, .popup .max, .popup .close {
 		color: #888 !important;
 	}
 
-	.popup .max:hover, .popup .close:hover {
+	.popup .download:hover, .popup .max:hover, .popup .close:hover {
 		color: #4f4f4f !important;
 	}
 	
@@ -1659,7 +1683,10 @@ marked.setOptions({
 	
 function onLinkClicked(link, evt) {
 	var href = link.getAttribute("href");
-
+	var filehref = link.href;
+        var downloadBtn = document.getElementById('downloadBtn');
+        downloadBtn.setAttribute('data-file-url', filehref);
+	
 	if (window.currentLink && REGEX_TYPE_AUDIO.test(href)) {
 		window.currentLink.classList.remove('nowPlaying');
 	}
@@ -1763,6 +1790,38 @@ function onLinkClicked(link, evt) {
 	}
 
 }
+	async function downloadFile() {
+        var downloadBtn = document.getElementById('downloadBtn');
+        var fileUrl = downloadBtn.getAttribute('data-file-url'); 
+
+        if (!fileUrl) {
+            alert("未找到可下载的文件链接！");
+            return;
+        }
+
+        try {
+            const response = await fetch(fileUrl);
+            if (!response.ok) throw new Error("文件下载失败！");
+
+            const blob = await response.blob(); 
+            const fileName = fileUrl.split('/').pop(); 
+
+            const blobUrl = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            URL.revokeObjectURL(blobUrl);
+
+            console.log("文件已成功下载：" + fileName);
+        } catch (error) {
+            console.error("下载失败：", error.message);
+            alert("下载失败，请稍后重试！");
+        }
+    }
 document.onclick = onDocumentClickHandler;
 </script>
 
@@ -2230,6 +2289,7 @@ document.onclick = onDocumentClickHandler;
 		<div id="popup1" class="overlay">
 			<div class="popup">
 				<h2 class="info"></h2>
+				<a class="download" id="downloadBtn" onclick="downloadFile()" href="#">📥</a>
 				<a class="max" onclick="toggleRestoreModal()" href="#">🔎</a>
 				<a class="close" onclick="hideModal()" href="#">&times;</a>
 				<div class="content">
