@@ -1010,12 +1010,38 @@ video::cue {
     background-color: #f4f3ec;
     overflow: auto;
     box-sizing: border-box;
+    padding-left: calc(4ch + 10px);
 }
 
 .content pre code {
 	padding: 0;
 }
 
+.code-wrapper {
+    position: relative;
+    overflow: hidden;
+    min-height: 100px; 
+    height: 100%; 
+}
+
+.line-numbers {
+    padding-top: 1em;
+    padding-botto: 1em;
+    position: absolute;
+    top: 0;
+    left: 0;
+    text-align: center;
+    padding-right: 10px;
+    border-right: 1px solid #ccc;
+    font-family: monospace;
+    white-space: pre;
+    user-select: none;
+    color: #888;
+    height: calc(100% - 1em);
+    overflow: hidden;
+    box-sizing: border-box;
+}
+	
 .content a {
 	color: #006ed3;
 }
@@ -1068,6 +1094,31 @@ video::cue {
 	.popup a.close {
 		font-size: 40px;
 	}
+	.line-numbers {
+		font-size: 14px;
+		line-height: 1.5;
+	}
+
+	.content pre {
+		font-size: 14px;
+		line-height: 1.5;
+		margin: 0;
+		padding-bottom: 1em;
+	}
+
+	.code-wrapper {
+		overflow: hidden;
+		display: flex;
+	}
+
+	.content pre, .line-numbers {
+		font-family: monospace;
+	}
+    	.content code:empty::before {
+        content: "\00A0";
+        display: inline-block;
+    }
+
 }
 
 @media (prefers-color-scheme: dark) {
@@ -1772,7 +1823,42 @@ function onLinkClicked(link, evt) {
 				        content.classList.add('markdown-body');
 				} else {
 					content.innerHTML = `<pre><code>${text}</code></pre>`;
-					window.hljs ? window.hljs.highlightAll() : console.error('nohljs!')
+					const codeBlock = content.querySelector('pre code');
+					const lines = text.split('\n');
+					const lineNumbers = lines.map((_, index) => index + 1).join('\n');
+					const lineNumberWrapper = document.createElement('div');
+					lineNumberWrapper.className = 'line-numbers';
+					lineNumberWrapper.textContent = lineNumbers;
+					const preElement = content.querySelector('pre');
+					const wrapper = document.createElement('div');
+					wrapper.className = 'code-wrapper';
+					wrapper.appendChild(lineNumberWrapper);
+					wrapper.appendChild(preElement);
+					content.innerHTML = '';
+					content.appendChild(wrapper);
+					const maxLineNumberLength = (lines.length).toString().length; // 获取最大行号的位数
+					lineNumberWrapper.style.width = `${maxLineNumberLength + 1}ch`; // 确保宽度足够，+1 是为了留点空间
+
+					window.hljs ? window.hljs.highlightAll() : console.error('nohljs!');
+
+					preElement.addEventListener('scroll', function () {
+    						lineNumberWrapper.scrollTop = preElement.scrollTop;
+               
+                			});
+					preElement.style.overflowX = 'auto'; // 确保横向滚动条显示
+
+					function adjustLineNumberHeight() {
+    						const preHeight = preElement.clientHeight;
+    						const scrollbarHeight = preElement.offsetHeight - preHeight;
+    						const adjustmentFactor = 0.5;
+
+    						lineNumberWrapper.style.height = `${preHeight - scrollbarHeight + adjustmentFactor}px`;
+						lineNumberWrapper.style.paddingBottom = `${scrollbarHeight + adjustmentFactor}px`;
+					}
+
+					adjustLineNumberHeight();
+
+					window.addEventListener('resize', adjustLineNumberHeight);
 				}
 			})
 			.catch(function (error) {
