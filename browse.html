@@ -1731,7 +1731,38 @@ marked.setOptions({
   pedantic: false,
   sanitize: false,
 });
-	
+
+function escapeHTML(str) {
+    const escapeMap = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+        '`': '&#96;',
+        '/': '&#x2F;',
+        '=': '&#x3D;',
+        '+': '&#43;',
+        '-': '&#45;',
+        '*': '&#42;',
+        '!': '&#33;',
+        '|': '&#124;',
+        ':': '&#58;',
+        ';': '&#59;',
+        '#': '&#35;',
+        '%': '&#37;',
+        '?': '&#63;',
+        '@': '&#64;',
+        '[': '&#91;',
+        ']': '&#93;',
+        '{': '&#123;',
+        '}': '&#125;',
+        '(': '&#40;',
+        ')': '&#41;',
+    };
+    return str.replace(/[&<>"'`/=\+\-\*!|:;#%?\@\[\]\{\}\(\)]/g, match => escapeMap[match]);
+}
+
 function onLinkClicked(link, evt) {
 	var href = link.getAttribute("href");
 	var filehref = decodeURIComponent(link.href);
@@ -1823,7 +1854,7 @@ function onLinkClicked(link, evt) {
 					content.innerHTML = marked.parse(text);
 				        content.classList.add('markdown-body');
 				} else {
-					content.innerHTML = `<pre><code>${text}</code></pre>`;
+					content.innerHTML = `<pre><code>${escapeHTML(text)}</code></pre>`;
 					const codeBlock = content.querySelector('pre code');
 					const lines = text.split('\n');
 					const lineNumbers = lines.map((_, index) => index + 1).join('\n');
