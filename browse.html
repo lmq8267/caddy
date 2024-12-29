@@ -1737,7 +1737,8 @@ function onLinkClicked(link, evt) {
 	var filehref = decodeURIComponent(link.href);
         var downloadBtn = document.getElementById('downloadBtn');
         downloadBtn.setAttribute('data-file-url', filehref);
-	
+	downloadBtn.setAttribute('href', filehref);
+	downloadBtn.setAttribute('download', '');
 	if (window.currentLink && REGEX_TYPE_AUDIO.test(href)) {
 		window.currentLink.classList.remove('nowPlaying');
 	}
