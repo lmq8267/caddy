@@ -43,11 +43,6 @@ admin off # 关闭 API 端口 # 全局配置
  #文件服务器，后面是文件路径；效果类似于https://opt.cn2qq.com 
  root * /mnt/sda1/filebrowser/caddy
  file_server browse
- 
- #在线打开文本显示中文字符不乱码
-header {
-                Content-Type "charset=utf-8"
-        }
         
  log {
   output file /tmp/caddy/requests.log {
