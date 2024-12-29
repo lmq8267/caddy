@@ -1683,7 +1683,7 @@ marked.setOptions({
 	
 function onLinkClicked(link, evt) {
 	var href = link.getAttribute("href");
-	var filehref = link.href;
+	var filehref = decodeURIComponent(link.href);
         var downloadBtn = document.getElementById('downloadBtn');
         downloadBtn.setAttribute('data-file-url', filehref);
 	
