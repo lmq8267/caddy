@@ -1868,8 +1868,8 @@ function onLinkClicked(link, evt) {
 					wrapper.appendChild(preElement);
 					content.innerHTML = '';
 					content.appendChild(wrapper);
-					const maxLineNumberLength = (lines.length).toString().length; // 获取最大行号的位数
-					lineNumberWrapper.style.width = `${maxLineNumberLength + 1}ch`; // 确保宽度足够，+1 是为了留点空间
+					const maxLineNumberLength = (lines.length).toString().length; 
+					lineNumberWrapper.style.width = `${maxLineNumberLength + 1}ch`; 
 
 					window.hljs ? window.hljs.highlightAll() : console.error('nohljs!');
 
@@ -1877,15 +1877,15 @@ function onLinkClicked(link, evt) {
     						lineNumberWrapper.scrollTop = preElement.scrollTop;
                
                 			});
-					preElement.style.overflowX = 'auto'; // 确保横向滚动条显示
+					preElement.style.overflowX = 'auto'; 
 
 					function adjustLineNumberHeight() {
     						const preHeight = preElement.clientHeight;
-    						const scrollbarHeight = preElement.offsetHeight - preHeight;
-    						const adjustmentFactor = 0.5;
+    						const scrollbarHeight = 16; 
+    						const adjustmentFactor = 0; 
 
-    						lineNumberWrapper.style.height = `${preHeight - scrollbarHeight + adjustmentFactor}px`;
-						lineNumberWrapper.style.paddingBottom = `${scrollbarHeight + adjustmentFactor}px`;
+						lineNumberWrapper.style.height = `${preHeight - scrollbarHeight}px`;
+						lineNumberWrapper.style.paddingBottom = `${scrollbarHeight}px`;
 					}
 
 					adjustLineNumberHeight();
