@@ -1957,17 +1957,16 @@ function onLinkClicked(link, evt) {
 				}
 			})
 			.then(function (text) {
-
 				showModal(popup, 'day');
 				var content = popup.querySelector('.content');
+				globalCodeContent = text; 
+  				showCopyButton(text);
 				// Check if the window has marked library
 				if (href.match(REGEX_TYPE_MARKDOWN) && window.marked) {
 					// Parse the markdown text as HTML and set it as the popup innerHTML
 					content.innerHTML = marked.parse(text);
 				        content.classList.add('markdown-body');
 				} else {
-					globalCodeContent = text; 
-  					showCopyButton(text);
 					content.innerHTML = `<pre><code>${escapeHTML(text)}</code></pre>`;
 					const codeBlock = content.querySelector('pre code');
 					const lines = text.split('\n');
