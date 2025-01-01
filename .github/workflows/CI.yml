@@ -168,7 +168,7 @@ jobs:
           
           echo "build_time=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
       - name: 发布
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
             token: ${{ secrets.c8 }}
             body: |
