@@ -2340,7 +2340,7 @@ document.onclick = onDocumentClickHandler;
 			</main>
 		</div>
 
-		{{$markdownFilePath := ""}}
+		{{$markdownFilePath := printf "/%s/README.md" .OriginalReq.URL.Path}}
 		{{if fileExists (printf "/%s/README.md" .OriginalReq.URL.Path)}}
 			{{$markdownFilePath = printf "/%s/README.md" .OriginalReq.URL.Path}}
 		{{else if fileExists (printf "/%s/readme.md" .OriginalReq.URL.Path)}}
