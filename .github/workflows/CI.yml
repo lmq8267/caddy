@@ -1,35 +1,57 @@
-name: 编译caddy二进制文件
+name: 编译caddy
 
 on:
+#每天北京时间11点 4点自动检测更新
   schedule:
-    - cron: '0 20 * * *'
+   - cron: "0 3,20 * * *"
   workflow_dispatch:
-
+    inputs:
+      branch:
+        description: '指定编译的版本号'
+        required: false
+        default: ''
+      info:
+        description: '发布Release的补充说明'
+        required: false
+        default: ''
+      bj:
+        description: '强制使用手动编译'
+        required: true
+        default: false
+        type: boolean
+permissions:
+  contents: write
+  actions: write
 env:
   TZ: Asia/Shanghai
+  BJ: ${{ github.event.inputs.bj }}
+  BRANCH: ${{ github.event.inputs.branch }}
 jobs:
  check:
-  runs-on: ubuntu-latest
-  outputs:
-    ver: ${{ steps.getversion.outputs.ver }}
-    cver: ${{ steps.getversion.outputs.cver }}
-  steps:
-  - name: 检查更新
-    id: getversion
-    run: |
-      ver=`curl https://api.github.com/repos/caddyserver/caddy/releases/latest | jq -r '.tag_name'`
-      cver=`curl https://api.github.com/repos/lmq8267/caddy/releases/latest | jq -r '.tag_name'`
-      echo "ver=${ver}" >> $GITHUB_OUTPUT
-      echo "cver=${cver}" >> $GITHUB_OUTPUT
-  -     name: 删除工作流
-        uses: GitRML/delete-workflow-runs@main
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.getversion.outputs.tag }}
+      ver: ${{ steps.getversion.outputs.ver }}
+    steps:
+      - name: 获取版本号
+        id: getversion
+        run: |
+          ver=`curl https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/latest | jq -r '.tag_name'`
+          tag=`curl https://api.github.com/repos/caddyserver/caddy/releases/latest | jq -r '.tag_name'`
+          echo -e "获取到最新的版本号：${tag}\n当前仓库最新版本号：${ver}"
+          echo "tag=${tag}" >> $GITHUB_OUTPUT
+          echo "ver=${ver}" >> $GITHUB_OUTPUT
+          
+      - name: 删除流程记录
+        uses: Mattraks/delete-workflow-runs@main
         with:
-         token: ${{ secrets.c8 }}
-         retain_days: 2
-         keep_minimum_runs: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+          retain_days: 0
+          keep_minimum_runs: 0
+      
  build: 
     needs: check
-    if: ${{ needs.check.outputs.ver != needs.check.outputs.cver }}
+    if: ${{ github.event.inputs.bj == 'true' || (github.event.inputs.bj != 'true' && needs.check.outputs.tag != needs.check.outputs.ver) }}
     strategy:
       fail-fast: false
       matrix:
@@ -137,8 +159,27 @@ jobs:
         name: 编译
         run: |
           go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
-          git clone -b ${{ needs.check.outputs.ver }} https://github.com/caddyserver/caddy /opt/mycaddy
-          cp -rf ./browse.html /opt/mycaddy/modules/caddyhttp/fileserver/browse.html
+          if [[ "${{ env.BJ }}" == "true" ]]; then
+            echo "强制进行编译..."
+            if [[ -n "${{ github.event.inputs.branch }}" ]]; then
+                echo "使用手动指定的版本：${{ github.event.inputs.branch }}"
+                TAG=${{ github.event.inputs.branch }}
+                echo "TAG=$TAG" >> $GITHUB_ENV
+            else
+                echo "使用自动获取的版本：${{ needs.check.outputs.tag }}"
+                TAG=${{ needs.check.outputs.tag }}
+                echo "TAG=$TAG" >> $GITHUB_ENV
+            fi
+          else
+            echo "使用自动获取的版本：${{ needs.check.outputs.tag }}"
+            TAG=${{ needs.check.outputs.tag }}
+            echo "TAG=$TAG" >> $GITHUB_ENV
+          fi
+          echo "开始拉取 ${TAG} 源码..."
+          git clone -b ${TAG} https://github.com/caddyserver/caddy /opt/mycaddy
+          curl -Lko /opt/browse.html https://github.com/lmq8267/caddy/raw/refs/heads/main/browse.html || wget --no-check-certificate -O /opt/browse.html https://github.com/lmq8267/caddy/raw/refs/heads/main/browse.html
+          
+          cp -rf /opt/browse.html /opt/mycaddy/modules/caddyhttp/fileserver/browse.html
           #sed -i 's/caddy\.Log().Warn("failed to set GOMAXPROCS", zap.Error(err))/_ = err/g' /opt/mycaddy/cmd/main.go
           sed -i 's/caddy\.Log().Warn("failed to set GOMAXPROCS", zap.Error(err))/runtime.GOMAXPROCS(4)/g' /opt/mycaddy/cmd/main.go
           sed -i 's/full += " " + module.Sum/full = module.Version/g' /opt/mycaddy/caddy.go
@@ -154,7 +195,7 @@ jobs:
           GOOS=${OOS} GOARCH=${ARCH} GOMIPS=${SOFT} GOARM=${ARM} xcaddy build \
           --with github.com/caddyserver/caddy/v2=/opt/mycaddy \
           --with github.com/mholt/caddy-webdav \
-          --with github.com/aksdb/caddy-cgi/v2
+          --with github.com/aksdb/caddy-cgi/v2 
           file caddy
           du -k caddy
           mv caddy caddy-${TARGET}
@@ -163,38 +204,43 @@ jobs:
           upx --lzma --best caddy-${TARGET}-upx
           du -k caddy-${TARGET}-upx
           fi
-          #sudo apt install qemu-user
-          #qemu-mipsel caddy -v
           
           echo "build_time=$(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+      - name: 上传
+        uses: actions/upload-artifact@v4
+        with:
+          name: caddy-${{ github.event.inputs.branch }}-${{ matrix.TARGET }}
+          path: /opt/caddy/
       - name: 发布
         uses: softprops/action-gh-release@v2
         with:
-            token: ${{ secrets.c8 }}
+            token: ${{ github.token }}
             body: |
              > ### 编译时间 ：${{ env.build_time }}
 
               caddy-CPU架构-upx 为upx压缩文件
               
-              添加了两个插件：
+              添加了三个插件：
               **[mholt/caddy-webdav](https://github.com/mholt/caddy-webdav)**
               **[aksdb/caddy-cgi](https://github.com/aksdb/caddy-cgi)**
 
               查看集成的插件列表命令： `caddy list-modules -s`
               
               **[官方更新说明](https://github.com/caddyserver/caddy/releases)**
+
+              ${{ github.event.inputs.info }}
               
-            tag_name: ${{ needs.check.outputs.ver }}
+            tag_name: ${{ env.TAG }}
             files: /opt/caddy/*
+
  keepalive-workflow:
-    # github超过60天未提交将自动停止工作流
-    name: 工作流保活 
+    name: 工作流保活
     runs-on: ubuntu-latest
     permissions:
       actions: write
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: gautamkrishnar/keepalive-workflow@v2
         #with:
           #use_api: true
-      
