@@ -2340,7 +2340,44 @@ document.onclick = onDocumentClickHandler;
 			</main>
 		</div>
 
-		{{$markdownFilePath := printf "/%s/README.md" .OriginalReq.URL.Path}}
+		{{$markdownFilePath := ""}}
+		{{if fileExists (printf "/%s/README.md" .OriginalReq.URL.Path)}}
+			{{$markdownFilePath = printf "/%s/README.md" .OriginalReq.URL.Path}}
+		{{else if fileExists (printf "/%s/readme.md" .OriginalReq.URL.Path)}}
+			{{$markdownFilePath = printf "/%s/readme.md" .OriginalReq.URL.Path}}
+		{{else if fileExists (printf "/%s/README" .OriginalReq.URL.Path)}}
+    			{{$markdownFilePath = printf "/%s/README" .OriginalReq.URL.Path}}
+		{{else if fileExists (printf "/%s/readme" .OriginalReq.URL.Path)}}
+    			{{$markdownFilePath = printf "/%s/readme" .OriginalReq.URL.Path}}
+		{{else if fileExists (printf "/%s/README.txt" .OriginalReq.URL.Path)}}
+    			{{$markdownFilePath = printf "/%s/README.txt" .OriginalReq.URL.Path}}
+		{{else if fileExists (printf "/%s/readme.txt" .OriginalReq.URL.Path)}}
+    			{{$markdownFilePath = printf "/%s/readme.txt" .OriginalReq.URL.Path}}
+		{{else if fileExists (printf "/%s/说明.txt" .OriginalReq.URL.Path)}}
+    			{{$markdownFilePath = printf "/%s/说明.txt" .OriginalReq.URL.Path}}
+		{{else if fileExists (printf "/%s/说明" .OriginalReq.URL.Path)}}
+    			{{$markdownFilePath = printf "/%s/说明" .OriginalReq.URL.Path}}
+		{{else if fileExists (printf "/%s/介绍.txt" .OriginalReq.URL.Path)}}
+    			{{$markdownFilePath = printf "/%s/介绍.txt" .OriginalReq.URL.Path}}
+		{{else if fileExists (printf "/%s/介绍" .OriginalReq.URL.Path)}}
+    			{{$markdownFilePath = printf "/%s/介绍" .OriginalReq.URL.Path}}
+		{{else if fileExists (printf "/%s/教程.txt" .OriginalReq.URL.Path)}}
+    			{{$markdownFilePath = printf "/%s/教程.txt" .OriginalReq.URL.Path}}
+		{{else if fileExists (printf "/%s/教程" .OriginalReq.URL.Path)}}
+    			{{$markdownFilePath = printf "/%s/教程" .OriginalReq.URL.Path}}
+		{{else if fileExists (printf "/%s/使用说明.txt" .OriginalReq.URL.Path)}}
+    			{{$markdownFilePath = printf "/%s/使用说明.txt" .OriginalReq.URL.Path}}
+		{{else if fileExists (printf "/%s/使用说明" .OriginalReq.URL.Path)}}
+    			{{$markdownFilePath = printf "/%s/使用说明" .OriginalReq.URL.Path}}
+		{{else if fileExists (printf "/%s/使用教程.txt" .OriginalReq.URL.Path)}}
+    			{{$markdownFilePath = printf "/%s/使用教程.txt" .OriginalReq.URL.Path}}
+		{{else if fileExists (printf "/%s/使用教程" .OriginalReq.URL.Path)}}
+    			{{$markdownFilePath = printf "/%s/使用教程" .OriginalReq.URL.Path}}
+		{{else if fileExists (printf "/%s/使用方法.txt" .OriginalReq.URL.Path)}}
+    			{{$markdownFilePath = printf "/%s/使用方法.txt" .OriginalReq.URL.Path}}
+		{{else if fileExists (printf "/%s/使用说明" .OriginalReq.URL.Path)}}
+    			{{$markdownFilePath = printf "/%s/使用方法" .OriginalReq.URL.Path}}
+		{{end}}
 		{{if (fileExists $markdownFilePath)}}
 		{{$markdownFile := (include $markdownFilePath)}}
 		<div class="wrapper">
