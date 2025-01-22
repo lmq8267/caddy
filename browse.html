@@ -1880,7 +1880,7 @@ function onLinkClicked(link, evt) {
 	var filehref = decodeURIComponent(link.href);
         var downloadBtn = document.getElementById('downloadBtn');
         downloadBtn.setAttribute('data-file-url', filehref);
-	downloadBtn.setAttribute('href', filehref);
+	//downloadBtn.setAttribute('href', filehref);
 	downloadBtn.setAttribute('download', '');
 	if (window.currentLink && REGEX_TYPE_AUDIO.test(href)) {
 		window.currentLink.classList.remove('nowPlaying');
@@ -2607,10 +2607,10 @@ document.onclick = onDocumentClickHandler;
 		<div id="popup1" class="overlay">
 			<div class="popup">
 				<h2 class="info"></h2>
-				<a class="copy hidden" id="copyBtn" onclick="copyToClipboard()" href="#">📋</a>
-				<a class="download" id="downloadBtn" onclick="downloadFile()" href="#">📥</a>
-				<a class="max" onclick="toggleRestoreModal()" href="#">🔎</a>
-				<a class="close" onclick="hideModal()" href="#">&times;</a>
+				<a class="copy hidden" id="copyBtn" onclick="copyToClipboard()">📋</a>
+				<a class="download" id="downloadBtn" onclick="downloadFile()">📥</a>
+				<a class="max" onclick="toggleRestoreModal()">🔎</a>
+				<a class="close" onclick="hideModal()">&times;</a>
 				<div class="content">
 				</div>
 			</div>
