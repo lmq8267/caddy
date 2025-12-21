@@ -2384,6 +2384,73 @@ document.onclick = onDocumentClickHandler;
 			<main>
 				<div class="markdown-body" style="margin:1em;padding:1em">
 					{{markdown $markdownFile}}
+					<style>
+.heart-divider {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 2.5em 0;
+  font-size: 18px;
+  pointer-events: none;
+}
+
+.heart-divider span {
+  display: inline-block;
+  animation:
+    wave 1.8s ease-in-out infinite,
+    colorFlow 4s linear infinite;
+  will-change: transform, color;
+}
+
+@keyframes wave {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes colorFlow {
+  0%   { color: #ff7eb3; }   /* 粉 */
+  33%  { color: #c77dff; }   /* 紫 */
+  66%  { color: #5ac8fa; }   /* 蓝 */
+  100% { color: #ff7eb3; }   /* 回到粉 */
+}
+</style>
+
+<div class="heart-divider" data-heart-divider></div>
+
+<script>
+(function () {
+  function buildHearts() {
+    const container = document.querySelector('.markdown-body');
+    const divider = document.querySelector('[data-heart-divider]');
+    if (!container || !divider) return;
+
+    divider.innerHTML = '';
+
+    const containerWidth = container.clientWidth;
+    const heartSize = 18;
+    const gap = 10;
+    const count = Math.floor(containerWidth / (heartSize + gap));
+
+    for (let i = 0; i < count; i++) {
+      const span = document.createElement('span');
+      span.textContent = '❤';
+
+      span.style.animationDelay =
+        `${i * 0.12}s, ${i * 0.25}s`;
+
+      divider.appendChild(span);
+    }
+  }
+
+  buildHearts();
+  window.addEventListener('resize', buildHearts);
+})();
+</script>
 				</div>
 			</div>
 			</main>
