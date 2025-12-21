@@ -2389,7 +2389,7 @@ document.onclick = onDocumentClickHandler;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 8px;                
   margin: 2.5em 0;
   font-size: 18px;
   pointer-events: none;
@@ -2397,6 +2397,9 @@ document.onclick = onDocumentClickHandler;
 
 .heart-divider span {
   display: inline-block;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+               "PingFang SC", "Hiragino Sans GB",
+               "Microsoft YaHei", Arial, sans-serif;
   animation:
     wave 1.8s ease-in-out infinite,
     colorFlow 4s linear infinite;
@@ -2404,19 +2407,15 @@ document.onclick = onDocumentClickHandler;
 }
 
 @keyframes wave {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
 }
 
 @keyframes colorFlow {
-  0%   { color: #ff7eb3; }   /* 粉 */
-  33%  { color: #c77dff; }   /* 紫 */
-  66%  { color: #5ac8fa; }   /* 蓝 */
-  100% { color: #ff7eb3; }   /* 回到粉 */
+  0%   { color: #ff7eb3; }
+  33%  { color: #c77dff; }
+  66%  { color: #5ac8fa; }
+  100% { color: #ff7eb3; }
 }
 </style>
 
@@ -2424,6 +2423,8 @@ document.onclick = onDocumentClickHandler;
 
 <script>
 (function () {
+  const colors = ['#ff7eb3', '#c77dff', '#5ac8fa'];
+
   function buildHearts() {
     const container = document.querySelector('.markdown-body');
     const divider = document.querySelector('[data-heart-divider]');
@@ -2431,14 +2432,25 @@ document.onclick = onDocumentClickHandler;
 
     divider.innerHTML = '';
 
+    const test = document.createElement('span');
+    test.textContent = '♥';
+    test.style.visibility = 'hidden';
+    test.style.position = 'absolute';
+    divider.appendChild(test);
+
+    const heartWidth = test.getBoundingClientRect().width;
+    const gap = parseFloat(getComputedStyle(divider).gap) || 0;
+
+    divider.removeChild(test);
+
     const containerWidth = container.clientWidth;
-    const heartSize = 18;
-    const gap = 10;
-    const count = Math.floor(containerWidth / (heartSize + gap));
+    const count = Math.floor(containerWidth / (heartWidth + gap));
 
     for (let i = 0; i < count; i++) {
       const span = document.createElement('span');
-      span.textContent = '❤';
+      span.textContent = '♥';
+
+      span.style.color = colors[i % colors.length];
 
       span.style.animationDelay =
         `${i * 0.12}s, ${i * 0.25}s`;
