@@ -1485,11 +1485,13 @@ video::cue {
 			case 32: // Space
 				if(e.which == 32){
 				// stops default behaviour of space bar. Stop page scrolling down
-					e.preventDefault();
-					if (v.paused) {
-						v.play();
-					} else {
-						v.pause();
+					if (v) {
+						e.preventDefault();
+						if (v.paused) {
+							v.play();
+						} else {
+							v.pause();
+						}
 					}
 				}
 				break;
