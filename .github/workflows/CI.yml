@@ -195,7 +195,8 @@ jobs:
           GOOS=${OOS} GOARCH=${ARCH} GOMIPS=${SOFT} GOARM=${ARM} xcaddy build \
           --with github.com/caddyserver/caddy/v2=/opt/mycaddy \
           --with github.com/mholt/caddy-webdav \
-          --with github.com/aksdb/caddy-cgi/v2 
+          --with github.com/aksdb/caddy-cgi/v2 \
+          --with github.com/abiosoft/caddy-exec
           file caddy
           du -k caddy
           mv caddy caddy-${TARGET}
@@ -223,6 +224,7 @@ jobs:
               添加了三个插件：
               **[mholt/caddy-webdav](https://github.com/mholt/caddy-webdav)**
               **[aksdb/caddy-cgi](https://github.com/aksdb/caddy-cgi)**
+              **[abiosoft/caddy-exec](https://github.com/abiosoft/caddy-exec)**
 
               查看集成的插件列表命令： `caddy list-modules -s`
               
