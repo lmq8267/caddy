@@ -177,6 +177,8 @@ jobs:
           fi
           echo "开始拉取 ${TAG} 源码..."
           git clone -b ${TAG} https://github.com/caddyserver/caddy /opt/mycaddy
+          # caddy 最新版 go.mod 要求 go 1.26，Go1.25.7 才支持 mips/mipsle，降级语言版本
+          sed -i 's/^go .*/go 1.25/' /opt/mycaddy/go.mod
           curl -Lko /opt/browse.html https://github.com/lmq8267/caddy/raw/refs/heads/main/browse.html || wget --no-check-certificate -O /opt/browse.html https://github.com/lmq8267/caddy/raw/refs/heads/main/browse.html
           
           cp -rf /opt/browse.html /opt/mycaddy/modules/caddyhttp/fileserver/browse.html
@@ -207,6 +209,21 @@ jobs:
           fi
           
           echo "build_time=$(date '+%Y年%m月%d日%H:%M:%S' | jq -sRr @uri)" >> $GITHUB_ENV
+      - name: qemu-mipsel 运行测试
+        if: matrix.TARGET == 'mipsel'
+        run: |
+          # 系统自带 qemu 4.2 对 mips 上 Go 的实时信号支持不完整(sigaction failed)，改用 multiarch 7.2 
+          curl -sL -o /tmp/qemu-mipsel-static "https://github.com/multiarch/qemu-user-static/releases/download/v7.2.0-1/qemu-mipsel-static"
+          chmod +x /tmp/qemu-mipsel-static
+          cd /opt/caddy
+          echo "===== caddy-mipsel -h (qemu-mipsel) ====="
+          if ! /tmp/qemu-mipsel-static ./caddy-mipsel -h > /tmp/help.txt 2>&1; then
+            echo "::error::qemu-mipsel 运行 caddy-mipsel -h 失败"
+            cat /tmp/help.txt
+            exit 1
+          fi
+          cat /tmp/help.txt
+          grep -qi "caddy" /tmp/help.txt || { echo "::error::caddy-mipsel -h 输出异常"; exit 1; }
       - name: 上传
         uses: actions/upload-artifact@v4
         with:
