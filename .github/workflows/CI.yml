@@ -229,6 +229,7 @@ jobs:
         with:
           name: caddy-${{ github.event.inputs.branch }}-${{ matrix.TARGET }}
           path: /opt/caddy/
+          retention-days: 1
       - name: 发布
         uses: softprops/action-gh-release@v2
         with:
