@@ -146,7 +146,7 @@ jobs:
       - name: 安装go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.25.7 # ${{ env.gotag }}
+          go-version: ${{ env.gotag }}
       -
         name: 检查代码仓库
         uses: actions/checkout@v4
@@ -178,7 +178,7 @@ jobs:
           echo "开始拉取 ${TAG} 源码..."
           git clone -b ${TAG} https://github.com/caddyserver/caddy /opt/mycaddy
           # caddy 最新版 go.mod 要求 go 1.26，Go1.25.7 才支持 mips/mipsle，降级语言版本
-          sed -i 's/^go .*/go 1.25/' /opt/mycaddy/go.mod
+          # sed -i 's/^go .*/go 1.25/' /opt/mycaddy/go.mod
           curl -Lko /opt/browse.html https://github.com/lmq8267/caddy/raw/refs/heads/main/browse.html || wget --no-check-certificate -O /opt/browse.html https://github.com/lmq8267/caddy/raw/refs/heads/main/browse.html
           
           cp -rf /opt/browse.html /opt/mycaddy/modules/caddyhttp/fileserver/browse.html
